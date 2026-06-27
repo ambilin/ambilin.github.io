@@ -9,4 +9,4 @@ Disallow: /sw.js
 Disallow: /generate-icons.html
 
 # Lokasi sitemap
-Sitemap: https://ambilin.example.com/sitemap.xml
+Sitemap: https://ambilin.github.io/
