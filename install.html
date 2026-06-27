@@ -276,7 +276,6 @@
       "use strict";
       document.documentElement.classList.add("js");
 
-      /* THEME */
       const metaThemeColor = document.getElementById("metaThemeColor");
       function updateThemeColor(theme) {
         if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020");
@@ -311,10 +310,8 @@
         transition.finished.catch(() => {});
       });
 
-      /* YEAR */
       document.getElementById("year").textContent = new Date().getFullYear();
 
-      /* MOBILE MENU */
       const menuToggle = document.getElementById("menuToggle");
       const navLinks = document.getElementById("navLinks");
       menuToggle.addEventListener("click", () => {
@@ -330,7 +327,6 @@
         })
       );
 
-      /* SCROLL PROGRESS + TO TOP */
       const scrollProgress = document.getElementById("scrollProgress");
       const toTopBtn = document.getElementById("toTop");
       let ticking = false;
