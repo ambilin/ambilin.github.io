@@ -16,15 +16,33 @@
   <meta name="language" content="Indonesian" />
   <meta name="revisit-after" content="7 days" />
 
+  <!-- ====================== SEARCH CONSOLE VERIFICATION ====================== -->
+  <!-- GANTI content dengan kode verifikasi dari Google Search Console kamu -->
+  <meta name="google-site-verification" content="KODE_VERIFIKASI_SEARCH_CONSOLE_KAMU" />
+
   <!-- ====================== CANONICAL ====================== -->
-  <!-- GANTI URL INI dengan domain kamu yang sebenarnya -->
   <link rel="canonical" href="https://ambilin.github.io/" />
+
+  <!-- ====================== HREFLANG (alternate language) ====================== -->
+  <!-- Bahasa Indonesia (default) -->
+  <link rel="alternate" hreflang="id" href="https://ambilin.github.io/" />
+  <!-- Default fallback untuk pengunjung dari bahasa lain -->
+  <link rel="alternate" hreflang="x-default" href="https://ambilin.github.io/" />
+  <!--
+    KALAU NANTI KAMU SUDAH PUNYA VERSI ENGLISH di /en/index.html,
+    tambahkan baris ini (hapus comment):
+    <link rel="alternate" hreflang="en" href="https://ambilin.github.io/en/" />
+    Dan tambahkan di /en/index.html:
+    <link rel="alternate" hreflang="id" href="https://ambilin.github.io/" />
+    <link rel="alternate" hreflang="en" href="https://ambilin.github.io/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://ambilin.github.io/" />
+  -->
 
   <!-- ====================== THEME COLOR ====================== -->
   <meta name="theme-color" id="metaThemeColor" content="#0b1020" />
   <meta name="color-scheme" content="dark light" />
 
-  <!-- ====================== FONTS (preload + dns-prefetch untuk speed) ====================== -->
+  <!-- ====================== FONTS ====================== -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://www.tikwm.com" />
@@ -35,11 +53,10 @@
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="manifest" href="manifest.json" />
 
-  <!-- ====================== OPEN GRAPH (Facebook / WhatsApp) ====================== -->
+  <!-- ====================== OPEN GRAPH ====================== -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="ambilin" />
   <meta property="og:locale" content="id_ID" />
-  <!-- GANTI URL DI BAWAH dengan domain kamu -->
   <meta property="og:url" content="https://ambilin.github.io/" />
   <meta property="og:title" content="ambilin · Download Video Tanpa Watermark Gratis" />
   <meta property="og:description" content="Download video Instagram, TikTok & YouTube tanpa watermark. Gratis, cepat, bisa diinstal jadi aplikasi. Tempel link, klik download, selesai!" />
@@ -86,6 +103,28 @@
       "Auto-detect link dari clipboard",
       "Pilih kualitas video & audio MP3",
       "Gratis selamanya"
+    ]
+  }
+  </script>
+
+  <!-- ====================== STRUCTURED DATA: BreadcrumbList ====================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Beranda",
+        "item": "https://ambilin.github.io/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Downloader Video",
+        "item": "https://ambilin.github.io/#top"
+      }
     ]
   }
   </script>
@@ -166,6 +205,16 @@
   }
   </script>
 
+  <!-- ====================== GOOGLE ANALYTICS (GA4) ====================== -->
+  <!-- GANTI G-XXXXXXXXXX dengan Measurement ID kamu dari Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX', { 'anonymize_ip': true });
+  </script>
+
   <!-- ====================== STYLESHEET ====================== -->
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -214,6 +263,15 @@
       </button>
     </div>
   </header>
+
+  <!-- ============================ BREADCRUMB ============================ -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <ol class="breadcrumb__list">
+      <li class="breadcrumb__item"><a href="#top" class="breadcrumb__link">Beranda</a></li>
+      <li class="breadcrumb__sep" aria-hidden="true">›</li>
+      <li class="breadcrumb__item breadcrumb__item--current" aria-current="page">Downloader Video Tanpa Watermark</li>
+    </ol>
+  </nav>
 
   <main id="top">
     <!-- ============================ HERO ============================ -->
