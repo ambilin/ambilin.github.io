@@ -1,0 +1,61 @@
+# =================================================================
+# ambilin — GitHub Actions: Auto Deploy ke GitHub Pages
+# =================================================================
+# Apa ini? Robot yang otomatis publish web kamu tiap kali kamu
+# edit/save kode. Sekali pasang, kamu tinggal edit konten,
+# sisanya urusan robot.
+# =================================================================
+
+name: Deploy ke GitHub Pages
+
+on:
+  # Trigger 1: Tiap kamu push kode ke branch "main"
+  push:
+    branches: ["main"]
+  # Trigger 2: Bisa juga dijalankan manual lewat tombol di tab Actions
+  workflow_dispatch:
+
+# Permission yang dibutuhkan robot buat publish ke Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Biar gak ada 2 deploy jalan barengan
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Ambil kode dari repo
+      - name: Checkout kode
+        uses: actions/checkout@v4
+
+      # Step 2: Setup GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # Step 3: Update tanggal <lastmod> di sitemap.xml jadi hari ini
+      # (biar Google tau web kamu sering update)
+      - name: Update tanggal sitemap
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          sed -i "s|<lastmod>.*</lastmod>|<lastmod>${TODAY}</lastmod>|g" sitemap.xml
+          echo "✅ Sitemap diupdate ke tanggal: ${TODAY}"
+
+      # Step 4: Kumpulin semua file jadi 1 paket siap deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      # Step 5: Publish ke GitHub Pages
+      - name: Deploy ke GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
