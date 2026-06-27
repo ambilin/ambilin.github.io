@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate Icons — ambilin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0b1020; color: #eaf0ff; min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
+    .card { max-width: 480px; text-align: center; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { color: #9aa6c9; line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.92rem; }
+    .btns { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    button { padding: 0.8rem 1.4rem; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; color: #fff; background: linear-gradient(135deg, #7c5cff, #ff5c93); box-shadow: 0 0 30px -8px rgba(124,92,255,0.55); transition: transform 0.15s ease; }
+    button:hover { transform: translateY(-2px); }
+    .preview { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .preview figure { text-align: center; }
+    .preview img { width: 96px; height: 96px; border-radius: 20px; display: block; margin-bottom: 0.4rem; }
+    .preview figcaption { font-size: 0.8rem; color: #9aa6c9; }
+    .note { font-size: 0.82rem; color: #9aa6c9; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Generate PNG Icons</h1>
+    <p>Klik kedua tombol di bawah untuk mengunduh <strong>icon-192.png</strong> dan <strong>icon-512.png</strong>. Letakkan kedua file tersebut di folder yang sama dengan file ambilin kamu (index.html, manifest.json, dll).</p>
+
+    <div class="preview" id="preview"></div>
+
+    <div class="btns">
+      <button onclick="downloadIcon(192)">⬇ Download icon-192.png</button>
+      <button onclick="downloadIcon(512)">⬇ Download icon-512.png</button>
+    </div>
+
+    <p class="note">Setelah kedua PNG ada di folder, tombol <strong>Install</strong> di ambilin akan langsung berfungsi di Chrome Android. Manifest.json sudah dikonfigurasi untuk membaca kedua file ini otomatis.</p>
+  </div>
+
+  <script>
+    function drawIcon(size) {
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      const s = size / 512;
+
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, size, size);
+      grad.addColorStop(0, "#7c5cff");
+      grad.addColorStop(0.55, "#ff5c93");
+      grad.addColorStop(1, "#21d4fd");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      // Draw "A" logo
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 36 * s;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // Diagonals: M128 448 L256 96 L384 448
+      ctx.beginPath();
+      ctx.moveTo(128 * s, 448 * s);
+      ctx.lineTo(256 * s, 96 * s);
+      ctx.lineTo(384 * s, 448 * s);
+      ctx.stroke();
+
+      // Crossbar: M180 336 H332
+      ctx.beginPath();
+      ctx.moveTo(180 * s, 336 * s);
+      ctx.lineTo(332 * s, 336 * s);
+      ctx.stroke();
+
+      return canvas;
+    }
+
+    function downloadIcon(size) {
+      const canvas = drawIcon(size);
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `icon-${size}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    }
+
+    // Preview
+    const preview = document.getElementById("preview");
+    [192, 512].forEach((size) => {
+      const fig = document.createElement("figure");
+      const img = drawIcon(size).toDataURL("image/png");
+      fig.innerHTML = `<img src="${img}" alt="Preview ${size}x${size}"><figcaption>${size}×${size}</figcaption>`;
+      preview.appendChild(fig);
+    });
+  </script>
+</body>
+</html>
