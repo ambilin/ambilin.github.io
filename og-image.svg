@@ -23,7 +23,6 @@
   <circle cx="100" cy="80" r="300" fill="url(#orb1)"/>
   <circle cx="1100" cy="550" r="280" fill="url(#orb2)"/>
 
-  <!-- Text branding (tanpa logo icon) -->
   <text x="100" y="150" font-family="Poppins, Arial, sans-serif" font-size="56" font-weight="800" fill="#eaf0ff">
     ambil<tspan fill="#ff7eae">in</tspan>
   </text>
