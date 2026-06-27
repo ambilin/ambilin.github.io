@@ -51,23 +51,23 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, size, size);
 
-      // Draw "A" logo
+      // Draw "A" logo (modern, bold, elegant)
       ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 36 * s;
+      ctx.lineWidth = 42 * s;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
-      // Diagonals: M128 448 L256 96 L384 448
+      // A legs + peak: M112 468 L256 92 L400 468
       ctx.beginPath();
-      ctx.moveTo(128 * s, 448 * s);
-      ctx.lineTo(256 * s, 96 * s);
-      ctx.lineTo(384 * s, 448 * s);
+      ctx.moveTo(112 * s, 468 * s);
+      ctx.lineTo(256 * s, 92 * s);
+      ctx.lineTo(400 * s, 468 * s);
       ctx.stroke();
 
-      // Crossbar: M180 336 H332
+      // Crossbar: M182 348 L330 348
       ctx.beginPath();
-      ctx.moveTo(180 * s, 336 * s);
-      ctx.lineTo(332 * s, 336 * s);
+      ctx.moveTo(182 * s, 348 * s);
+      ctx.lineTo(330 * s, 348 * s);
       ctx.stroke();
 
       return canvas;
