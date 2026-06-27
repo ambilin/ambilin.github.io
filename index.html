@@ -16,7 +16,6 @@
   <meta name="google-site-verification" content="KODE_VERIFIKASI_SEARCH_CONSOLE_KAMU" />
 
   <link rel="canonical" href="https://ambilin.github.io/" />
-
   <link rel="alternate" hreflang="id" href="https://ambilin.github.io/" />
   <link rel="alternate" hreflang="x-default" href="https://ambilin.github.io/" />
 
@@ -70,24 +69,7 @@
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Beranda", "item": "https://ambilin.github.io/" },
-      { "@type": "ListItem", "position": 2, "name": "Downloader Video", "item": "https://ambilin.github.io/#top" }
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Apakah ambilin benar-benar gratis?", "acceptedAnswer": { "@type": "Answer", "text": "Ya. Semua fitur gratis tanpa batas, tanpa biaya tersembunyi, dan tanpa perlu mendaftar akun." } },
-      { "@type": "Question", "name": "Apakah video hasil unduhan ada watermark-nya?", "acceptedAnswer": { "@type": "Answer", "text": "Tidak. ambilin mengambil sumber video tanpa watermark bila tersedia, sehingga hasilnya bersih." } },
-      { "@type": "Question", "name": "Platform apa saja yang didukung?", "acceptedAnswer": { "@type": "Answer", "text": "Instagram (Reels, post, IGTV), TikTok, dan YouTube (termasuk Shorts). Cukup tempel linknya." } },
-      { "@type": "Question", "name": "Kenapa video private gagal diunduh?", "acceptedAnswer": { "@type": "Answer", "text": "Video dengan akun privat tidak bisa diakses publik, sehingga tidak dapat diproses. Pastikan video bersifat publik." } },
-      { "@type": "Question", "name": "Bagaimana cara install ambilin jadi aplikasi?", "acceptedAnswer": { "@type": "Answer", "text": "Di Android: buka ambilin di Chrome, tekan tombol Install di pojok kanan atas, atau menu ⋮ → Tambah ke Layar utama. Di iPhone/iPad: buka di Safari, tekan tombol Share → Tambah ke Layar Utama." } },
-      { "@type": "Question", "name": "Bisa langsung share dari aplikasi TikTok?", "acceptedAnswer": { "@type": "Answer", "text": "Bisa, setelah ambilin diinstal. Di aplikasi TikTok, tap tombol Share pada video, lalu pilih ambilin dari daftar. Link otomatis terisi dan langsung diproses." } },
-      { "@type": "Question", "name": "Apakah aman untuk perangkat saya?", "acceptedAnswer": { "@type": "Answer", "text": "Aman. Kami tidak memasang iklan berbahaya dan tidak menyimpan data unduhanmu." } }
+      { "@type": "ListItem", "position": 1, "name": "Beranda", "item": "https://ambilin.github.io/" }
     ]
   }
   </script>
@@ -134,8 +116,8 @@
 
     <nav class="nav__links" id="navLinks" aria-label="Navigasi utama">
       <a href="#cara-pakai">Cara Pakai</a>
-      <a href="#fitur">Fitur</a>
-      <a href="#faq">FAQ</a>
+      <a href="fitur.html">Fitur</a>
+      <a href="faq.html">FAQ</a>
       <a href="install.html">Download</a>
     </nav>
 
@@ -160,6 +142,7 @@
   </header>
 
   <main id="top">
+    <!-- HERO + DOWNLOADER (main focus) -->
     <section class="hero">
       <div class="hero__inner">
         <span class="pill">
@@ -215,6 +198,7 @@
       </div>
     </section>
 
+    <!-- CARA PAKAI (3 steps — keep, visual & short) -->
     <section id="cara-pakai" class="section reveal">
       <div class="section__head">
         <h2 class="section__title">Cara pakai <span class="grad-text">3 langkah</span></h2>
@@ -247,44 +231,25 @@
           <p>Pratinjau muncul, pilih kualitas, dan simpan video bersih tanpa watermark ke perangkatmu.</p>
         </article>
       </div>
-
-      <div class="tip glass">
-        <span class="tip__icon">💡</span>
-        <p><strong>Lebih cepat lagi:</strong> Install ambilin sebagai aplikasi. Lalu dari TikTok tinggal tap <strong>Share → ambilin</strong>, link otomatis masuk &amp; langsung diproses. Link juga otomatis terdeteksi dari clipboard saat kamu buka ambilin.</p>
-      </div>
     </section>
 
+    <!-- FITUR PREVIEW (3 cards + CTA) -->
     <section id="fitur" class="section reveal">
       <div class="section__head">
         <h2 class="section__title">Kenapa pakai <span class="grad-text">ambilin</span>?</h2>
         <p class="section__lead">Dirancang cepat, rapi, dan benar-benar gratis.</p>
       </div>
 
-      <div class="features">
+      <div class="features features--preview">
         <article class="feature glass">
           <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg></div>
           <h3>Tanpa watermark</h3>
           <p>Unduh video bersih tanpa logo atau tanda air yang mengganggu.</p>
         </article>
         <article class="feature glass">
-          <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
-          <h3>Super cepat</h3>
-          <p>Proses ringan langsung di browser, hasil muncul dalam hitungan detik.</p>
-        </article>
-        <article class="feature glass">
-          <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></div>
-          <h3>Pilih kualitas</h3>
-          <p>Dari HD video sampai audio MP3 — pilih format yang kamu butuhkan.</p>
-        </article>
-        <article class="feature glass">
           <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 22h6"/><path d="M12 11l2 2 4-4"/></svg></div>
           <h3>Bisa diinstal jadi app</h3>
-          <p>Install ambilin ke layar utama. Buka lebih cepat, bisa juga terima link langsung dari TikTok via menu Share.</p>
-        </article>
-        <article class="feature glass">
-          <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-          <h3>Privat &amp; aman</h3>
-          <p>Kami tidak menyimpan link maupun video yang kamu unduh.</p>
+          <p>Install ambilin ke layar utama. Buka lebih cepat, bisa share langsung dari TikTok.</p>
         </article>
         <article class="feature glass">
           <div class="feature__icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M14.5 9.5a3.5 3.5 0 0 0-5 0M9 14.5a3.5 3.5 0 0 0 5 0"/></svg></div>
@@ -292,43 +257,38 @@
           <p>Tanpa biaya, tanpa daftar, dan tanpa batas jumlah unduhan.</p>
         </article>
       </div>
+
+      <div class="section-cta">
+        <a href="fitur.html" class="btn-primary">
+          <span class="btn-primary__label">
+            Lihat semua fitur
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+      </div>
     </section>
 
-    <section id="faq" class="section reveal">
-      <div class="section__head">
-        <h2 class="section__title">Pertanyaan <span class="grad-text">umum</span></h2>
-        <p class="section__lead">Hal-hal yang sering ditanyakan pengguna ambilin.</p>
-      </div>
-
-      <div class="faq">
-        <details class="faq__item glass">
-          <summary>Apakah ambilin benar-benar gratis?</summary>
-          <div class="faq__answer">Ya. Semua fitur gratis tanpa batas, tanpa biaya tersembunyi, dan tanpa perlu mendaftar akun.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Apakah video hasil unduhan ada watermark-nya?</summary>
-          <div class="faq__answer">Tidak. ambilin mengambil sumber video tanpa watermark bila tersedia, sehingga hasilnya bersih.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Platform apa saja yang didukung?</summary>
-          <div class="faq__answer">Instagram (Reels, post, IGTV), TikTok, dan YouTube (termasuk Shorts). Cukup tempel linknya.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Kenapa video private gagal diunduh?</summary>
-          <div class="faq__answer">Video dengan akun privat tidak bisa diakses publik, sehingga tidak dapat diproses. Pastikan video bersifat publik.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Bagaimana cara install ambilin jadi aplikasi?</summary>
-          <div class="faq__answer">Di Android: buka ambilin di Chrome, tekan tombol <strong>Install</strong> di pojok kanan atas, atau menu ⋮ → "Tambah ke Layar utama". Di iPhone/iPad: buka di Safari, tekan tombol Share → "Tambah ke Layar Utama". Setelah terinstal, ambilin jalan seperti aplikasi biasa.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Bisa langsung share dari aplikasi TikTok?</summary>
-          <div class="faq__answer">Bisa, setelah ambilin diinstal. Di aplikasi TikTok, tap tombol <strong>Share</strong> pada video, lalu pilih <strong>ambilin</strong> dari daftar. Link otomatis terisi dan langsung diproses — tidak perlu copy-paste manual.</div>
-        </details>
-        <details class="faq__item glass">
-          <summary>Apakah aman untuk perangkat saya?</summary>
-          <div class="faq__answer">Aman. Kami tidak memasang iklan berbahaya dan tidak menyimpan data unduhanmu.</div>
-        </details>
+    <!-- BOTTOM CTA (links to FAQ + Install) -->
+    <section class="bottom-cta reveal">
+      <div class="bottom-cta__inner">
+        <a href="faq.html" class="bottom-cta__card glass">
+          <div class="bottom-cta__icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+          </div>
+          <div>
+            <h3>Punya pertanyaan?</h3>
+            <p>Cek jawabannya di halaman FAQ →</p>
+          </div>
+        </a>
+        <a href="install.html" class="bottom-cta__card glass">
+          <div class="bottom-cta__icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 22h6"/><path d="M12 11l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <h3>Mau install jadi app?</h3>
+            <p>Panduan Android, iOS & Desktop →</p>
+          </div>
+        </a>
       </div>
     </section>
   </main>
@@ -343,8 +303,8 @@
       </div>
       <nav class="footer__links" aria-label="Tautan footer">
         <a href="#cara-pakai">Cara Pakai</a>
-        <a href="#fitur">Fitur</a>
-        <a href="#faq">FAQ</a>
+        <a href="fitur.html">Fitur</a>
+        <a href="faq.html">FAQ</a>
         <a href="install.html">Download</a>
         <a href="#top">Ke Atas ↑</a>
       </nav>
