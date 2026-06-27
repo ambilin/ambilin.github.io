@@ -1,5 +1,5 @@
 /* =================================================================
-   ambilin — style.css (optimized)
+   ambilin — style.css
    ================================================================= */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,9 +65,11 @@ a { color: inherit; text-decoration: none; }
 .nav__links a::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 0; height: 2px; border-radius: 2px; background: var(--brand-gradient); transition: width 0.25s ease; }
 .nav__links a:hover { color: var(--text); }
 .nav__links a:hover::after { width: 100%; }
+.nav__links a.active { color: var(--text); font-weight: 600; }
+.nav__links a.active::after { width: 100%; }
 .nav__actions { display: flex; align-items: center; gap: 0.6rem; }
 
-.btn-install { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 12px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 700; font-family: inherit; color: #fff; background: var(--brand-gradient); box-shadow: var(--glow); transition: transform 0.15s ease, filter 0.2s ease; touch-action: manipulation; }
+.btn-install { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 12px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 700; font-family: inherit; color: #fff; background: var(--brand-gradient); box-shadow: var(--glow); transition: transform 0.15s ease, filter 0.2s ease; touch-action: manipulation; text-decoration: none; }
 .btn-install:hover { transform: translateY(-1px); filter: brightness(1.05); }
 .btn-install:active { transform: scale(0.95); }
 .btn-install.is-ready { animation: pulseGlow 2s ease-in-out infinite; }
@@ -109,7 +111,7 @@ a { color: inherit; text-decoration: none; }
 .input-wrap__field::placeholder { color: var(--text-muted); }
 .btn-paste { flex-shrink: 0; border: none; cursor: pointer; padding: 0.55rem 0.95rem; border-radius: 11px; font-size: 0.85rem; font-weight: 600; font-family: inherit; color: var(--text); background: var(--card-strong); border: 1px solid var(--card-border); transition: transform 0.15s ease, background 0.2s ease; touch-action: manipulation; }
 .btn-paste:hover { transform: translateY(-1px); }
-.btn-primary { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; border: none; cursor: pointer; padding: 0.95rem 1.4rem; border-radius: 16px; font-size: 1.02rem; font-weight: 700; font-family: inherit; color: #fff; background: var(--brand-gradient); background-size: 180% 180%; box-shadow: var(--glow); overflow: hidden; transition: transform 0.18s ease, filter 0.2s ease; animation: gradientShift 6s ease infinite; touch-action: manipulation; }
+.btn-primary { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; border: none; cursor: pointer; padding: 0.95rem 1.4rem; border-radius: 16px; font-size: 1.02rem; font-weight: 700; font-family: inherit; color: #fff; background: var(--brand-gradient); background-size: 180% 180%; box-shadow: var(--glow); overflow: hidden; transition: transform 0.18s ease, filter 0.2s ease; animation: gradientShift 6s ease infinite; touch-action: manipulation; text-decoration: none; }
 @keyframes gradientShift { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
 .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.05); }
 .btn-primary:disabled { cursor: progress; filter: saturate(0.7) brightness(0.95); }
@@ -194,6 +196,37 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .faq__item[open] summary::after { transform: rotate(45deg); }
 .faq__answer { padding: 0 1.3rem 1.3rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.65; animation: fadeUp 0.3s ease; }
 
+/* ===================== INSTALL PAGE ===================== */
+.install-hero { padding: clamp(2.5rem, 7vw, 5rem) 1.5rem 1rem; }
+.install-hero .hero__inner { max-width: 780px; }
+.install-hero__title { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; letter-spacing: -1px; margin: 1rem 0 0.8rem; font-family: "Poppins", sans-serif; }
+.install-hero__subtitle { color: var(--text-muted); max-width: 580px; margin: 0 auto 2rem; font-size: 1.05rem; line-height: 1.7; }
+
+.platform-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; max-width: 560px; margin: 0 auto; }
+.platform-nav__btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.3rem; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card); color: var(--text); font-weight: 600; font-size: 0.92rem; transition: transform 0.15s ease, border-color 0.2s ease; touch-action: manipulation; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.platform-nav__btn:hover { transform: translateY(-2px); border-color: var(--grad-1); }
+.platform-nav__btn:active { transform: translateY(0); }
+
+.install-section { max-width: 760px; margin: 0 auto; padding: clamp(2rem, 5vw, 3.5rem) 1.5rem; content-visibility: auto; contain-intrinsic-size: auto 500px; }
+.install-section__head { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; }
+.install-section__icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--brand-gradient); color: #fff; flex-shrink: 0; box-shadow: var(--glow); }
+.install-section__title { font-size: clamp(1.3rem, 3vw, 1.7rem); font-weight: 700; font-family: "Poppins", sans-serif; }
+
+.install-card { padding: 1.8rem; border-radius: 20px; }
+.install-intro { color: var(--text-muted); font-size: 0.95rem; line-height: 1.65; margin-bottom: 1.3rem; }
+
+.install-steps { list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 1.2rem; }
+.install-steps li { counter-increment: step; display: flex; gap: 1rem; align-items: flex-start; }
+.install-steps li::before { content: counter(step); flex-shrink: 0; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--brand-gradient); color: #fff; font-weight: 700; font-size: 0.9rem; font-family: "Poppins", sans-serif; }
+.install-steps li p { flex: 1; padding-top: 0.3rem; line-height: 1.6; font-size: 0.95rem; color: var(--text); }
+.install-steps li strong { color: var(--text); font-weight: 600; }
+
+.install-note { margin-top: 1.5rem; padding: 1rem 1.2rem; border-radius: 14px; background: rgba(124,92,255,0.08); border: 1px solid rgba(124,92,255,0.2); font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+.install-note strong { color: var(--text); }
+
+.install-cta { text-align: center; padding: 2rem 1.5rem 4rem; }
+.install-cta .btn-primary { display: inline-flex; }
+
 /* FOOTER */
 .footer { margin-top: auto; padding: 2.5rem 1.5rem 2rem; border-top: 1px solid var(--card-border); background: var(--card); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
 .footer__inner { max-width: 1080px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; }
@@ -207,27 +240,17 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .to-top { position: fixed; right: 1.2rem; bottom: max(1.2rem, env(safe-area-inset-bottom)); z-index: 60; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-strong); color: var(--text); cursor: pointer; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: transform 0.2s ease; animation: fadeUp 0.3s ease; touch-action: manipulation; }
 .to-top:hover { transform: translateY(-3px); }
 
-/* ===================== RESPONSIVE + MOBILE OPTIMIZATION ===================== */
+/* ===================== RESPONSIVE ===================== */
 @media (max-width: 860px) {
   .steps, .features { grid-template-columns: repeat(2, 1fr); }
   :root { --blur-orb: 60px; }
 }
 
 @media (max-width: 640px) {
-  /* FIX: Hide orbs, use pseudo-element for gradient bg.
-     Before, background shorthand had color FIRST → invalid CSS → white screen.
-     Now: background-color separate + ::before for gradients. */
   .bg-orbs { display: none; }
-
-  body {
-    background-color: var(--bg);
-  }
+  body { background-color: var(--bg); }
   body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
       radial-gradient(circle at 15% 0%, rgba(124,92,255,0.18), transparent 45%),
       radial-gradient(circle at 85% 25%, rgba(255,92,147,0.14), transparent 45%),
@@ -238,13 +261,10 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
       radial-gradient(circle at 15% 0%, rgba(124,92,255,0.1), transparent 45%),
       radial-gradient(circle at 85% 25%, rgba(255,92,147,0.08), transparent 45%);
   }
-
-  /* Reduce blur for GPU performance */
   :root { --blur-glass: 8px; }
   .glass { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
   .downloader__glow { display: none; }
 
-  /* Mobile menu */
   .nav__links {
     position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0;
     padding: 0.5rem 1.5rem 1rem; background: var(--bg-soft); border-bottom: 1px solid var(--card-border);
@@ -263,8 +283,6 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
   .footer__inner { flex-direction: column; text-align: center; }
   .btn-install span { display: none; }
   .btn-install { padding: 0.6rem; width: 44px; height: 44px; justify-content: center; }
-
-  /* Slightly smaller hero title on mobile for less vertical crowding */
   .hero__title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
 }
 
