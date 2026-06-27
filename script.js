@@ -2,7 +2,7 @@
    ambilin — script.js
    TikTok → tikwm API (langsung, no setup)
    YouTube → Piped API (langsung, no setup, CORS-friendly)
-   Instagram → butuh Cloudflare Worker (lihat catatan di NO_ENDPOINT)
+   Instagram → butuh Cloudflare Worker (lihat catatan di IG_NEEDS_WORKER)
    ================================================================= */
 "use strict";
 
@@ -10,7 +10,7 @@ document.documentElement.classList.add("js");
 
 const CONFIG = {
   // Untuk Instagram: isi dengan URL Cloudflare Worker kamu
-  // (lihat panduan di bawah). Untuk YouTube & TikTok: kosongin aja.
+  // (lihat panduan di halaman Download → cara install). Untuk YouTube & TikTok: kosongin aja.
   SERVERLESS_ENDPOINT: "",
   TIKTOK_PUBLIC_API: "https://www.tikwm.com/api/",
   PIPED_API: "https://api.piped.private.coffee",
@@ -277,11 +277,11 @@ async function fetchYouTubePiped(url) {
   const medias = [];
   // Ambil video streams yang combined (video + audio), skip yang videoOnly
   const videoStreams = (data.videoStreams || []).filter(s => s.videoOnly === false && s.format === "MPEG_4");
-  // Sort by quality (ascending: 360p dulu, terus 720p, dst)
+  // Sort by quality descending (HD dulu)
   videoStreams.sort((a, b) => {
     const qa = parseInt(a.quality) || 0;
     const qb = parseInt(b.quality) || 0;
-    return qb - qa; // descending (HD dulu)
+    return qb - qa;
   });
   videoStreams.slice(0, 3).forEach(s => {
     medias.push({
@@ -291,7 +291,7 @@ async function fetchYouTubePiped(url) {
     });
   });
 
-  // Audio streams
+  // Audio streams (ambil yang mp4/m4a)
   const audioStreams = (data.audioStreams || []).filter(s => s.mimeType && s.mimeType.includes("audio/mp4"));
   if (audioStreams.length > 0) {
     medias.push({
@@ -393,7 +393,7 @@ function handleError(err, platform) {
   let msg;
   switch (true) {
     case code === "IG_NEEDS_WORKER":
-      msg = "Untuk download Instagram, kamu perlu setup Cloudflare Worker (gratis, 5 menit). Lihat panduan di halaman Download → cara install. Tapi tenang, TikTok & YouTube sudah bisa langsung!";
+      msg = "Untuk download Instagram, kamu perlu setup Cloudflare Worker (gratis, 5 menit). Tapi tenang, TikTok & YouTube sudah bisa langsung dipakai!";
       break;
     case code === "NO_ENDPOINT":
       msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
