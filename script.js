@@ -1,5 +1,8 @@
 /* =================================================================
-   ambilin — script.js (optimized)
+   ambilin — script.js
+   Fitur: download, deteksi platform, PWA install, share-target,
+   auto-detect clipboard, theme toggle (circular reveal animation),
+   mobile menu, scroll progress, IntersectionObserver reveal.
    ================================================================= */
 "use strict";
 
@@ -11,6 +14,7 @@ const CONFIG = {
   PREFER_PUBLIC_TIKTOK: true,
 };
 
+/* ELEMEN DOM */
 const form = document.getElementById("downloadForm");
 const urlInput = document.getElementById("urlInput");
 const downloadBtn = document.getElementById("downloadBtn");
@@ -48,9 +52,6 @@ function setTheme(next) {
   updateThemeColor(theme);
 })();
 
-/* Toggle tema dengan circular reveal (View Transitions API).
-   FIX: Added .catch() fallback untuk mobile robustness.
-   Jika transition gagal, theme tetap di-apply. */
 themeToggle.addEventListener("click", () => {
   const current = document.documentElement.getAttribute("data-theme");
   const next = current === "light" ? "dark" : "light";
@@ -87,7 +88,6 @@ themeToggle.addEventListener("click", () => {
       }
     );
   }).catch(() => {
-    // Fallback: jika transition.ready reject, theme sudah di-set di callback
     setTheme(next);
   });
 
@@ -126,26 +126,32 @@ onScroll();
 toTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 /* ============================ ANIMASI REVEAL ==================== */
+/* FIX: Pakai IntersectionObserver (lebih reliable dari scroll event).
+   Fallback: kalau IO tidak support, langsung visible semua.
+   Failsafe: kalau ada section yang nyangkut invisible > 2.5 detik, force visible. */
 const revealEls = Array.from(document.querySelectorAll(".reveal"));
-if (prefersReducedMotion) {
+
+if (prefersReducedMotion || !("IntersectionObserver" in window)) {
   revealEls.forEach((el) => el.classList.add("is-visible"));
 } else {
-  let revealTicking = false;
-  const revealInView = () => {
-    revealTicking = false;
-    const trigger = window.innerHeight * 0.92;
-    for (let i = revealEls.length - 1; i >= 0; i--) {
-      const el = revealEls[i];
-      if (el.getBoundingClientRect().top < trigger) {
-        el.classList.add("is-visible");
-        revealEls.splice(i, 1);
-      }
-    }
-  };
-  const onRevealScroll = () => { if (!revealTicking) { revealTicking = true; requestAnimationFrame(revealInView); } };
-  window.addEventListener("scroll", onRevealScroll, { passive: true });
-  window.addEventListener("resize", onRevealScroll, { passive: true });
-  revealInView();
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { rootMargin: "0px 0px -15% 0px", threshold: 0 }
+  );
+  revealEls.forEach((el) => observer.observe(el));
+
+  setTimeout(() => {
+    revealEls.forEach((el) => {
+      if (!el.classList.contains("is-visible")) el.classList.add("is-visible");
+    });
+  }, 2500);
 }
 
 /* ============================ TOMBOL TEMPEL ===================== */
@@ -293,7 +299,6 @@ function renderResult(data) {
   const durText = data.duration ? formatDuration(data.duration) : "";
   const buttons = data.medias.map((m, i) => {
     const primary = i === 0 ? "dl-btn--primary" : "";
-    // Icon download: file-document dengan panah di dalam (beda dari logo web)
     const icon = m.kind === "audio"
       ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
       : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>';
