@@ -1,0 +1,12 @@
+# ambilin — robots.txt
+# Izinkan semua crawler mengindeks semua halaman
+
+User-agent: *
+Allow: /
+
+# Block folder internal / cache
+Disallow: /sw.js
+Disallow: /generate-icons.html
+
+# Lokasi sitemap
+Sitemap: https://ambilin.example.com/sitemap.xml
