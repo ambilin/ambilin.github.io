@@ -1,16 +1,19 @@
 /* =================================================================
    ambilin — script.js
-   Fitur: download, deteksi platform, PWA install, share-target,
-   auto-detect clipboard, theme toggle (circular reveal animation),
-   mobile menu, scroll progress, IntersectionObserver reveal.
+   TikTok → tikwm API (langsung, no setup)
+   YouTube → Piped API (langsung, no setup, CORS-friendly)
+   Instagram → butuh Cloudflare Worker (lihat catatan di NO_ENDPOINT)
    ================================================================= */
 "use strict";
 
 document.documentElement.classList.add("js");
 
 const CONFIG = {
+  // Untuk Instagram: isi dengan URL Cloudflare Worker kamu
+  // (lihat panduan di bawah). Untuk YouTube & TikTok: kosongin aja.
   SERVERLESS_ENDPOINT: "",
   TIKTOK_PUBLIC_API: "https://www.tikwm.com/api/",
+  PIPED_API: "https://api.piped.private.coffee",
   PREFER_PUBLIC_TIKTOK: true,
 };
 
@@ -34,17 +37,13 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
 
 /* ============================ TEMA ============================== */
 function updateThemeColor(theme) {
-  if (metaThemeColor) {
-    metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020");
-  }
+  if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020");
 }
-
 function setTheme(next) {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("ambilin-theme", next);
   updateThemeColor(next);
 }
-
 (function initTheme() {
   const saved = localStorage.getItem("ambilin-theme");
   const theme = saved || "dark";
@@ -55,42 +54,18 @@ function setTheme(next) {
 themeToggle.addEventListener("click", () => {
   const current = document.documentElement.getAttribute("data-theme");
   const next = current === "light" ? "dark" : "light";
-
-  if (prefersReducedMotion || !document.startViewTransition) {
-    setTheme(next);
-    return;
-  }
-
+  if (prefersReducedMotion || !document.startViewTransition) { setTheme(next); return; }
   const rect = themeToggle.getBoundingClientRect();
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
-  const endRadius = Math.hypot(
-    Math.max(x, window.innerWidth - x),
-    Math.max(y, window.innerHeight - y)
-  );
-
-  const transition = document.startViewTransition(() => {
-    setTheme(next);
-  });
-
+  const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+  const transition = document.startViewTransition(() => setTheme(next));
   transition.ready.then(() => {
     document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 450,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-        pseudoElement: "::view-transition-new(root)",
-      }
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+      { duration: 450, easing: "cubic-bezier(0.4, 0, 0.2, 1)", pseudoElement: "::view-transition-new(root)" }
     );
-  }).catch(() => {
-    setTheme(next);
-  });
-
+  }).catch(() => setTheme(next));
   transition.finished.catch(() => {});
 });
 
@@ -126,11 +101,7 @@ onScroll();
 toTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 /* ============================ ANIMASI REVEAL ==================== */
-/* FIX: Pakai IntersectionObserver (lebih reliable dari scroll event).
-   Fallback: kalau IO tidak support, langsung visible semua.
-   Failsafe: kalau ada section yang nyangkut invisible > 2.5 detik, force visible. */
 const revealEls = Array.from(document.querySelectorAll(".reveal"));
-
 if (prefersReducedMotion || !("IntersectionObserver" in window)) {
   revealEls.forEach((el) => el.classList.add("is-visible"));
 } else {
@@ -146,7 +117,6 @@ if (prefersReducedMotion || !("IntersectionObserver" in window)) {
     { rootMargin: "0px 0px -15% 0px", threshold: 0 }
   );
   revealEls.forEach((el) => observer.observe(el));
-
   setTimeout(() => {
     revealEls.forEach((el) => {
       if (!el.classList.contains("is-visible")) el.classList.add("is-visible");
@@ -174,6 +144,7 @@ function detectPlatform(url) {
   if (/youtube\.com|youtu\.be/.test(u)) return "youtube";
   return null;
 }
+
 function updatePlatformIcon(url) {
   const platform = detectPlatform(url);
   const icons = {
@@ -250,14 +221,20 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ============== FETCH VIDEO — OPSI A / OPSI B =================== */
+/* ============== FETCH VIDEO — pilih API sesuai platform ========== */
 async function fetchVideo(url, platform) {
-  const useServerless = CONFIG.SERVERLESS_ENDPOINT && CONFIG.SERVERLESS_ENDPOINT.trim() !== "";
-  if (platform === "tiktok" && (CONFIG.PREFER_PUBLIC_TIKTOK || !useServerless)) return await fetchTikTokPublic(url);
-  if (useServerless) return await fetchViaServerless(url, platform);
+  if (platform === "tiktok") return await fetchTikTokPublic(url);
+  if (platform === "youtube") return await fetchYouTubePiped(url);
+  if (platform === "instagram") {
+    // Instagram butuh Cloudflare Worker (tidak ada API publik CORS-friendly)
+    const useServerless = CONFIG.SERVERLESS_ENDPOINT && CONFIG.SERVERLESS_ENDPOINT.trim() !== "";
+    if (useServerless) return await fetchViaServerless(url, platform);
+    throw new Error("IG_NEEDS_WORKER");
+  }
   throw new Error("NO_ENDPOINT");
 }
 
+/* ---------- TIKTOK via tikwm (langsung, CORS-friendly) ---------- */
 async function fetchTikTokPublic(url) {
   const api = `${CONFIG.TIKTOK_PUBLIC_API}?url=${encodeURIComponent(url)}&hd=1`;
   const res = await fetch(api);
@@ -277,6 +254,66 @@ async function fetchTikTokPublic(url) {
   });
 }
 
+/* ---------- YOUTUBE via Piped API (langsung, CORS-friendly) ---------- */
+async function fetchYouTubePiped(url) {
+  // Extract video ID dari berbagai format URL YouTube
+  let videoId = null;
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) { videoId = m[1]; break; }
+  }
+  if (!videoId) throw new Error("INVALID_YT_URL");
+
+  const apiUrl = `${CONFIG.PIPED_API}/streams/${videoId}`;
+  const res = await fetch(apiUrl);
+  if (!res.ok) throw new Error("HTTP_" + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error("API_FAIL");
+
+  const medias = [];
+  // Ambil video streams yang combined (video + audio), skip yang videoOnly
+  const videoStreams = (data.videoStreams || []).filter(s => s.videoOnly === false && s.format === "MPEG_4");
+  // Sort by quality (ascending: 360p dulu, terus 720p, dst)
+  videoStreams.sort((a, b) => {
+    const qa = parseInt(a.quality) || 0;
+    const qb = parseInt(b.quality) || 0;
+    return qb - qa; // descending (HD dulu)
+  });
+  videoStreams.slice(0, 3).forEach(s => {
+    medias.push({
+      label: `Video ${s.quality}`,
+      url: s.url,
+      kind: "video",
+    });
+  });
+
+  // Audio streams
+  const audioStreams = (data.audioStreams || []).filter(s => s.mimeType && s.mimeType.includes("audio/mp4"));
+  if (audioStreams.length > 0) {
+    medias.push({
+      label: "Audio (M4A)",
+      url: audioStreams[0].url,
+      kind: "audio",
+    });
+  }
+
+  if (medias.length === 0) throw new Error("EMPTY");
+
+  return normalize({
+    platform: "youtube",
+    title: data.title || "Video YouTube",
+    author: data.uploader || "YouTube",
+    thumbnail: data.thumbnailUrl || "",
+    duration: data.duration,
+    medias,
+  });
+}
+
+/* ---------- INSTAGRAM via Cloudflare Worker ---------- */
 async function fetchViaServerless(url, platform) {
   const endpoint = `${CONFIG.SERVERLESS_ENDPOINT}?url=${encodeURIComponent(url)}&platform=${platform}`;
   const res = await fetch(endpoint);
@@ -331,7 +368,7 @@ async function triggerDownload(fileUrl, data, label) {
   const rawName = (data.title || "video").slice(0, 40);
   const safeSlug = rawName.replace(/[\\/:*?"<>|#%\s+]+/g, "-").replace(/^-+|-+$/g, "") || "video";
   const safeName = `${data.platform}-${safeSlug}`;
-  const ext = /audio|mp3/i.test(label) ? "mp3" : "mp4";
+  const ext = /audio|mp3|m4a/i.test(label) ? "m4a" : "mp4";
   showStatus("info", "⬇️ Menyiapkan file untuk diunduh…");
   try {
     const res = await fetch(fileUrl);
@@ -355,17 +392,32 @@ function handleError(err, platform) {
   const code = (err && err.message) || "";
   let msg;
   switch (true) {
-    case code === "NO_ENDPOINT":
-      msg = platform === "tiktok"
-        ? "Gagal memproses TikTok. Coba lagi sebentar lagi."
-        : "Untuk Instagram & YouTube, aktifkan dulu serverless function (OPSI B) dan isi SERVERLESS_ENDPOINT di script.js.";
+    case code === "IG_NEEDS_WORKER":
+      msg = "Untuk download Instagram, kamu perlu setup Cloudflare Worker (gratis, 5 menit). Lihat panduan di halaman Download → cara install. Tapi tenang, TikTok & YouTube sudah bisa langsung!";
       break;
-    case code === "EMPTY": msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private)."; break;
-    case code === "API_FAIL": msg = "Server downloader gagal memproses link. Mungkin video private, dihapus, atau dibatasi wilayah."; break;
-    case /^HTTP_4/.test(code): msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik."; break;
-    case /^HTTP_5/.test(code): msg = "Server downloader sedang bermasalah (5xx). Coba lagi beberapa saat."; break;
-    case /Failed to fetch|NetworkError|TypeError/i.test(code): msg = "Gagal terhubung ke server. Cek koneksi internet, atau API memblokir akses (CORS). Coba OPSI B."; break;
-    default: msg = "Terjadi kesalahan saat memproses. Coba lagi atau gunakan link lain.";
+    case code === "NO_ENDPOINT":
+      msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
+      break;
+    case code === "INVALID_YT_URL":
+      msg = "Link YouTube tidak valid. Pastikan link benar (contoh: youtube.com/watch?v=... atau youtu.be/...).";
+      break;
+    case code === "EMPTY":
+      msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private).";
+      break;
+    case code === "API_FAIL":
+      msg = "Server downloader gagal memproses link. Mungkin video private, dihapus, atau dibatasi wilayah. Coba lagi sebentar.";
+      break;
+    case /^HTTP_4/.test(code):
+      msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik.";
+      break;
+    case /^HTTP_5/.test(code):
+      msg = "Server downloader sedang bermasalah (5xx). Coba lagi beberapa saat.";
+      break;
+    case /Failed to fetch|NetworkError|TypeError/i.test(code):
+      msg = "Gagal terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.";
+      break;
+    default:
+      msg = "Terjadi kesalahan saat memproses. Coba lagi atau gunakan link lain.";
   }
   showStatus("error", "⚠️ " + msg);
 }
@@ -374,9 +426,7 @@ function handleError(err, platform) {
 let deferredPrompt = null;
 let isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 
-if (isStandalone) {
-  installBtn.hidden = true;
-}
+if (isStandalone) installBtn.hidden = true;
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
