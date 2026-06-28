@@ -13,7 +13,14 @@ const CONFIG = {
   // (lihat panduan di halaman Download → cara install). Untuk YouTube & TikTok: kosongin aja.
   SERVERLESS_ENDPOINT: "",
   TIKTOK_PUBLIC_API: "https://www.tikwm.com/api/",
-  PIPED_API: "https://api.piped.private.coffee",
+  // Multiple Piped instances sebagai fallback — kalau satu diblock YouTube, coba yang lain
+  PIPED_INSTANCES: [
+    "https://api.piped.private.coffee",
+    "https://pipedapi.kavin.rocks",
+    "https://pipedapi.adminforge.de",
+    "https://pipedapi.reallyaweso.me",
+    "https://pipedapi.r4fo.com",
+  ],
   PREFER_PUBLIC_TIKTOK: true,
 };
 
@@ -254,7 +261,7 @@ async function fetchTikTokPublic(url) {
   });
 }
 
-/* ---------- YOUTUBE via Piped API (langsung, CORS-friendly) ---------- */
+/* ---------- YOUTUBE via Piped API (multi-instance fallback + retry) ---------- */
 async function fetchYouTubePiped(url) {
   // Extract video ID dari berbagai format URL YouTube
   let videoId = null;
@@ -268,49 +275,84 @@ async function fetchYouTubePiped(url) {
   }
   if (!videoId) throw new Error("INVALID_YT_URL");
 
-  const apiUrl = `${CONFIG.PIPED_API}/streams/${videoId}`;
-  const res = await fetch(apiUrl);
-  if (!res.ok) throw new Error("HTTP_" + res.status);
-  const data = await res.json();
-  if (data.error) throw new Error("API_FAIL");
+  // Coba tiap instance Piped, retry 2x per instance kalau dapat 5xx (YouTube block sementara)
+  let lastError = null;
+  for (const instance of CONFIG.PIPED_INSTANCES) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const apiUrl = `${instance}/streams/${videoId}`;
+        const res = await fetch(apiUrl, {
+          headers: { "Accept": "application/json" },
+          signal: AbortSignal.timeout(10000), // timeout 10 detik
+        });
+        if (!res.ok) {
+          lastError = new Error("HTTP_" + res.status);
+          // 5xx = YouTube block IP instance ini, coba instance lain (jangan retry)
+          if (res.status >= 500) break;
+          // 4xx = video invalid/private, langsung throw
+          throw lastError;
+        }
+        const data = await res.json();
+        if (data.error) {
+          // Cek kalau error-nya "Sign in to confirm you're not a bot" → YouTube block, coba instance lain
+          if (data.error.includes("not a bot") || data.error.includes("LOGIN_REQUIRED")) {
+            lastError = new Error("YT_BLOCKED");
+            break; // langsung coba instance lain
+          }
+          lastError = new Error("API_FAIL");
+          continue;
+        }
 
-  const medias = [];
-  // Ambil video streams yang combined (video + audio), skip yang videoOnly
-  const videoStreams = (data.videoStreams || []).filter(s => s.videoOnly === false && s.format === "MPEG_4");
-  // Sort by quality descending (HD dulu)
-  videoStreams.sort((a, b) => {
-    const qa = parseInt(a.quality) || 0;
-    const qb = parseInt(b.quality) || 0;
-    return qb - qa;
-  });
-  videoStreams.slice(0, 3).forEach(s => {
-    medias.push({
-      label: `Video ${s.quality}`,
-      url: s.url,
-      kind: "video",
-    });
-  });
+        const medias = [];
+        // Ambil video streams yang combined (video + audio), skip yang videoOnly
+        const videoStreams = (data.videoStreams || []).filter(s => s.videoOnly === false && s.format === "MPEG_4");
+        // Sort by quality descending (HD dulu)
+        videoStreams.sort((a, b) => {
+          const qa = parseInt(a.quality) || 0;
+          const qb = parseInt(b.quality) || 0;
+          return qb - qa;
+        });
+        videoStreams.slice(0, 3).forEach(s => {
+          medias.push({
+            label: `Video ${s.quality}`,
+            url: s.url,
+            kind: "video",
+          });
+        });
 
-  // Audio streams (ambil yang mp4/m4a)
-  const audioStreams = (data.audioStreams || []).filter(s => s.mimeType && s.mimeType.includes("audio/mp4"));
-  if (audioStreams.length > 0) {
-    medias.push({
-      label: "Audio (M4A)",
-      url: audioStreams[0].url,
-      kind: "audio",
-    });
+        // Audio streams (ambil yang mp4/m4a)
+        const audioStreams = (data.audioStreams || []).filter(s => s.mimeType && s.mimeType.includes("audio/mp4"));
+        if (audioStreams.length > 0) {
+          medias.push({
+            label: "Audio (M4A)",
+            url: audioStreams[0].url,
+            kind: "audio",
+          });
+        }
+
+        if (medias.length === 0) {
+          lastError = new Error("EMPTY");
+          continue;
+        }
+
+        // SUCCESS — return data
+        return normalize({
+          platform: "youtube",
+          title: data.title || "Video YouTube",
+          author: data.uploader || "YouTube",
+          thumbnail: data.thumbnailUrl || "",
+          duration: data.duration,
+          medias,
+        });
+      } catch (err) {
+        // AbortSignal.timeout atau network error → coba instance lain
+        lastError = err;
+        if (err.message && err.message.startsWith("HTTP_4")) throw err; // 4xx langsung throw
+        break; // coba instance lain
+      }
+    }
   }
-
-  if (medias.length === 0) throw new Error("EMPTY");
-
-  return normalize({
-    platform: "youtube",
-    title: data.title || "Video YouTube",
-    author: data.uploader || "YouTube",
-    thumbnail: data.thumbnailUrl || "",
-    duration: data.duration,
-    medias,
-  });
+  throw lastError || new Error("API_FAIL");
 }
 
 /* ---------- INSTAGRAM via Cloudflare Worker ---------- */
@@ -401,20 +443,23 @@ function handleError(err, platform) {
     case code === "INVALID_YT_URL":
       msg = "Link YouTube tidak valid. Pastikan link benar (contoh: youtube.com/watch?v=... atau youtu.be/...).";
       break;
+    case code === "YT_BLOCKED":
+      msg = "YouTube sedang memblokir akses ke video ini. Coba video lain, atau coba lagi dalam beberapa menit. Kalau sering gagal, mungkin perlu setup Cloudflare Worker sebagai proxy.";
+      break;
     case code === "EMPTY":
-      msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private).";
+      msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private), dan bukan livestream.";
       break;
     case code === "API_FAIL":
-      msg = "Server downloader gagal memproses link. Mungkin video private, dihapus, atau dibatasi wilayah. Coba lagi sebentar.";
+      msg = "Server downloader sedang sibuk. Coba lagi sebentar, atau coba video lain.";
       break;
     case /^HTTP_4/.test(code):
-      msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik.";
+      msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik (bukan private/age-restricted).";
       break;
     case /^HTTP_5/.test(code):
-      msg = "Server downloader sedang bermasalah (5xx). Coba lagi beberapa saat.";
+      msg = "Server downloader sedang bermasalah (5xx). Coba lagi beberapa saat, atau coba video lain.";
       break;
-    case /Failed to fetch|NetworkError|TypeError/i.test(code):
-      msg = "Gagal terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.";
+    case /Failed to fetch|NetworkError|TypeError|timeout|Timeout/i.test(code):
+      msg = "Gagal terhubung ke server (koneksi timeout). Cek koneksi internet kamu, lalu coba lagi. Kalau YouTube masih gagal, servernya mungkin lagi diblock — coba video lain dulu.";
       break;
     default:
       msg = "Terjadi kesalahan saat memproses. Coba lagi atau gunakan link lain.";
