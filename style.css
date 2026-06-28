@@ -75,8 +75,11 @@ a { color: inherit; text-decoration: none; }
 @keyframes pulseGlow { 0%,100% { box-shadow: var(--glow); } 50% { box-shadow: 0 0 28px -4px rgba(124,92,255,0.8); } }
 
 .theme-toggle { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--card-border); background: var(--card); color: var(--text); cursor: pointer; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1); flex-shrink: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-.theme-toggle:hover { transform: rotate(-15deg) scale(1.08); }
-.theme-toggle:active { transform: scale(0.88); }
+/* Hover effects hanya untuk device dengan hover (desktop) — fix mobile bug */
+@media (hover: hover) {
+  .theme-toggle:hover { transform: rotate(-15deg) scale(1.08); }
+  .theme-toggle:active { transform: scale(0.88); }
+}
 .theme-toggle svg { transition: transform 0.3s ease, opacity 0.3s ease; }
 .theme-toggle .icon-sun { display: none; }
 .theme-toggle .icon-moon { display: block; }
@@ -463,6 +466,9 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .blog-article a { color: var(--grad-1); font-weight: 500; text-decoration: underline; text-decoration-color: rgba(124,92,255,0.3); text-underline-offset: 2px; transition: text-decoration-color 0.2s ease; }
 .blog-article a:hover { text-decoration-color: var(--grad-1); }
 [data-theme="dark"] .blog-article a { color: #b9a6ff; }
+/* Override: btn-primary di blog harus tetap putih, bukan ungu */
+.blog-article .btn-primary { color: #fff; text-decoration: none; font-weight: 700; }
+.blog-article .btn-primary:hover { text-decoration: none; }
 .blog-article code { background: var(--card-strong); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.85rem; color: var(--grad-2); word-break: break-all; }
 .blog-article__cta { text-align: center; margin-top: 3rem; padding: 2rem 0; border-top: 1px solid var(--card-border); }
 .blog-article__cta .btn-primary { display: inline-flex; }
@@ -630,6 +636,28 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 @media (max-width: 860px) {
   .steps, .features { grid-template-columns: repeat(2, 1fr); }
   :root { --blur-orb: 60px; }
+}
+
+/* Fix: hapus SEMUA hover transforms di device tanpa hover (mobile)
+   Mencegah icon/elemen macet miring setelah tap */
+@media (hover: none) {
+  .theme-toggle:hover,
+  .theme-toggle:active,
+  .btn-install:hover,
+  .btn-paste:hover,
+  .btn-primary:hover,
+  .btn-share:hover,
+  .step-card:hover,
+  .feature:hover,
+  .bottom-cta__card:hover,
+  .platform-nav__btn:hover,
+  .history__item-btn:hover,
+  .faq__item:hover,
+  .to-top:hover,
+  .blog-list__item:hover,
+  .blog-related__item:hover {
+    transform: none !important;
+  }
 }
 
 @media (max-width: 640px) {
