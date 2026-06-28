@@ -1,7 +1,7 @@
 /* ambilin — sw.js (service worker v3)
    Cache-first untuk assets, network-first untuk navigasi.
    Auto-bump version untuk force update. */
-const CACHE = "ambilin-v8";
+const CACHE = "ambilin-v9";
 const ASSETS = [
   "/", "/index.html", "/fitur.html", "/faq.html", "/install.html",
   "/privacy.html", "/dmca.html", "/404.html",
