@@ -1,11 +1,11 @@
 /* ambilin — sw.js (service worker v3)
    Cache-first untuk assets, network-first untuk navigasi.
    Auto-bump version untuk force update. */
-const CACHE = "ambilin-v7";
+const CACHE = "ambilin-v8";
 const ASSETS = [
   "/", "/index.html", "/fitur.html", "/faq.html", "/install.html",
   "/privacy.html", "/dmca.html", "/404.html",
-  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg", "/og-image-fitur.svg", "/og-image-faq.svg", "/og-image-install.svg"
+  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg", "/og-image-fitur.svg", "/og-image-faq.svg", "/og-image-install.svg", "/blog/", "/blog/cara-download-video-tiktok-tanpa-watermark.html", "/blog/download-tiktok-hd-gratis-2025.html", "/blog/cara-hapus-watermark-tiktok.html", "/indexnow-key.txt"
 ];
 
 self.addEventListener("install", (e) => {
