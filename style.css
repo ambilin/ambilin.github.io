@@ -251,6 +251,8 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .footer__links { display: flex; flex-wrap: wrap; gap: 1.4rem; color: var(--text-muted); font-weight: 400; }
 .footer__links a:hover { color: var(--text); }
 .footer__copy { max-width: 1080px; margin: 1.8rem auto 0; text-align: center; font-size: 0.82rem; color: var(--text-muted); }
+.footer__credit { max-width: 1080px; margin: 0.4rem auto 0; text-align: center; font-size: 0.82rem; color: var(--text-muted); }
+.footer__credit strong { color: var(--text); font-weight: 600; }
 
 /* TO TOP */
 .to-top { position: fixed; right: 1.2rem; bottom: max(1.2rem, env(safe-area-inset-bottom)); z-index: 60; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-strong); color: var(--text); cursor: pointer; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: transform 0.2s ease; animation: fadeUp 0.3s ease; touch-action: manipulation; }
@@ -263,24 +265,40 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 640px) {
+  /* MOBILE OPTIMIZATION: hapus orbs & gradient body, pakai solid color */
   .bg-orbs { display: none; }
   body { background-color: var(--bg); }
-  body::before {
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(124,92,255,0.18), transparent 45%),
-      radial-gradient(circle at 85% 25%, rgba(255,92,147,0.14), transparent 45%),
-      radial-gradient(circle at 50% 100%, rgba(33,212,253,0.12), transparent 50%);
+  body::before { display: none; }
+
+  /* MOBILE OPTIMIZATION: hapus backdrop-filter dari SEMUA elemen glass di mobile */
+  /* (backdrop-filter paling mahal di GPU mobile) */
+  :root { --blur-glass: 0px; }
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--card-strong);
   }
-  [data-theme="light"] body::before {
-    background:
-      radial-gradient(circle at 15% 0%, rgba(124,92,255,0.1), transparent 45%),
-      radial-gradient(circle at 85% 25%, rgba(255,92,147,0.08), transparent 45%);
-  }
-  :root { --blur-glass: 8px; }
-  .glass { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+
+  /* MOBILE OPTIMIZATION: hapus backdrop-filter dari elemen dekoratif */
+  .pill { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--card-strong); }
+  .chip { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--card-strong); }
+  .platform-nav__btn { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--card-strong); }
+  .footer { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--bg-soft); }
+  .to-top { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--bg-soft); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+  /* MOBILE OPTIMIZATION: hide scroll progress (komputasi scroll listener mahal) */
+  .scroll-progress { display: none; }
+
+  /* MOBILE OPTIMIZATION: hapus downloader__glow (mask-composite berat) */
   .downloader__glow { display: none; }
 
+  /* MOBILE OPTIMIZATION: reduce shadow complexity di mobile */
+  .downloader { box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+  .step-card:hover, .feature:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .btn-install { box-shadow: 0 2px 8px rgba(124,92,255,0.3); }
+  .btn-primary { box-shadow: 0 2px 8px rgba(124,92,255,0.3); }
+
+  /* Mobile menu */
   .nav__links {
     position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0;
     padding: 0.5rem 1.5rem 1rem; background: var(--bg-soft); border-bottom: 1px solid var(--card-border);
