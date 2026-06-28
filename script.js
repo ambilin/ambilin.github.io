@@ -598,8 +598,13 @@ function renderHistory() {
   if (!historyBox) return;
   const history = getHistory();
   if (history.length === 0) {
-    historyBox.hidden = true;
-    historyBox.innerHTML = "";
+    historyBox.hidden = false;
+    historyBox.innerHTML = `
+      <div class="history__empty">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <p>Belum ada riwayat download. Mulai dengan tempel link TikTok di kolom atas!</p>
+      </div>
+    `;
     return;
   }
   historyBox.hidden = false;
