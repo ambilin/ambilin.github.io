@@ -15,7 +15,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@800&display=swap" rel="stylesheet" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem("ambilin-theme");
+        var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch(e) {}
+    })();
+  </script>
+<link rel="stylesheet" href="style.css" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="DMCA / Copyright Notice — ambilin" />

@@ -76,7 +76,16 @@
     gtag('config', 'G-XXXXXXXXXX', { 'anonymize_ip': true });
   </script>
 
-  <link rel="stylesheet" href="style.css" fetchpriority="high" />
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem("ambilin-theme");
+        var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch(e) {}
+    })();
+  </script>
+<link rel="stylesheet" href="style.css" fetchpriority="high" />
 </head>
 
 <body>
