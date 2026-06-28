@@ -722,7 +722,13 @@ function renderHistory() {
   historyBox.innerHTML = `
     <div class="history__head">
       <h3 class="history__title">Riwayat terakhir</h3>
-      <button type="button" class="history__clear" id="clearHistoryBtn" aria-label="Hapus riwayat">Hapus</button>
+      <div class="history__actions">
+        <button type="button" class="history__action-btn" id="exportHistoryBtn" aria-label="Export riwayat sebagai JSON" title="Export sebagai JSON">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+        <button type="button" class="history__clear" id="clearHistoryBtn" aria-label="Hapus riwayat">Hapus</button>
+      </div>
     </div>
     <ul class="history__list">
       ${history.map((h) => `
@@ -740,6 +746,8 @@ function renderHistory() {
   `;
   const clearBtn = document.getElementById("clearHistoryBtn");
   if (clearBtn) clearBtn.addEventListener("click", clearHistory);
+  const exportBtn = document.getElementById("exportHistoryBtn");
+  if (exportBtn) exportBtn.addEventListener("click", exportHistory);
   historyBox.querySelectorAll(".history__item-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       urlInput.value = btn.dataset.url;
@@ -833,3 +841,159 @@ document.addEventListener("keydown", (e) => {
 
 /* ===================== INIT HISTORY ON LOAD ==================== */
 window.addEventListener("load", renderHistory);
+
+/* ===================== WEB VITALS TRACKING ====================== */
+(function trackWebVitals() {
+  if (typeof gtag !== "function") return;
+
+  // LCP (Largest Contentful Paint)
+  if ("PerformanceObserver" in window) {
+    try {
+      const po = new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        const lastEntry = entries[entries.length - 1];
+        if (lastEntry) {
+          trackEvent("web_vitals_lcp", {
+            value: Math.round(lastEntry.startTime),
+            event_label: "LCP",
+          });
+        }
+      });
+      po.observe({ type: "largest-contentful-paint", buffered: true });
+    } catch {}
+
+    // CLS (Cumulative Layout Shift)
+    try {
+      let clsValue = 0;
+      const clsObserver = new PerformanceObserver((entryList) => {
+        for (const entry of entryList.getEntries()) {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+          }
+        }
+      });
+      clsObserver.observe({ type: "layout-shift", buffered: true });
+      // Report CLS on visibility change (page hide)
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden" && clsValue > 0) {
+          trackEvent("web_vitals_cls", {
+            value: parseFloat(clsValue.toFixed(3)),
+            event_label: "CLS",
+          });
+        }
+      });
+    } catch {}
+
+    // FID (First Input Delay) / INP (Interaction to Next Paint)
+    try {
+      const fidObserver = new PerformanceObserver((entryList) => {
+        for (const entry of entryList.getEntries()) {
+          const delay = entry.processingStart - entry.startTime;
+          trackEvent("web_vitals_fid", {
+            value: Math.round(delay),
+            event_label: "FID",
+          });
+        }
+      });
+      fidObserver.observe({ type: "first-input", buffered: true });
+    } catch {}
+
+    // INP (modern, fallback to FID)
+    try {
+      const inpObserver = new PerformanceObserver((entryList) => {
+        for (const entry of entryList.getEntries()) {
+          const duration = entry.duration;
+          if (duration > 0) {
+            trackEvent("web_vitals_inp", {
+              value: Math.round(duration),
+              event_label: "INP",
+            });
+          }
+        }
+      });
+      inpObserver.observe({ type: "event", buffered: true });
+    } catch {}
+  }
+
+  // TTFB (Time to First Byte)
+  if (performance.timing) {
+    window.addEventListener("load", () => {
+      const ttfb = performance.timing.responseStart - performance.timing.navigationStart;
+      if (ttfb > 0) {
+        trackEvent("web_vitals_ttfb", {
+          value: ttfb,
+          event_label: "TTFB",
+        });
+      }
+    });
+  }
+})();
+
+/* ===================== OFFLINE INDICATOR ======================== */
+(function setupOfflineIndicator() {
+  let banner = null;
+
+  function showOfflineBanner() {
+    if (banner) return;
+    banner = document.createElement("div");
+    banner.className = "offline-banner";
+    banner.innerHTML = `
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <span>Kamu sedang offline. Beberapa fitur mungkin nggak jalan.</span>
+    `;
+    document.body.appendChild(banner);
+    document.body.style.paddingTop = banner.offsetHeight + "px";
+  }
+
+  function hideOfflineBanner() {
+    if (!banner) return;
+    banner.classList.add("is-leaving");
+    const b = banner;
+    banner = null;
+    setTimeout(() => {
+      b.remove();
+      document.body.style.paddingTop = "";
+    }, 300);
+    // Toast: back online
+    showStatus("success", "🌐 Kamu kembali online!");
+  }
+
+  window.addEventListener("offline", showOfflineBanner);
+  window.addEventListener("online", hideOfflineBanner);
+
+  // Initial check (kalau buka web saat offline)
+  if (!navigator.onLine) {
+    setTimeout(showOfflineBanner, 500);
+  }
+})();
+
+/* ===================== EXPORT HISTORY (JSON) ==================== */
+function exportHistory() {
+  const history = getHistory();
+  if (history.length === 0) {
+    showStatus("info", "Belum ada riwayat untuk diexport.");
+    return;
+  }
+  const exportData = {
+    exported_at: new Date().toISOString(),
+    app: "ambilin",
+    version: "1.0",
+    count: history.length,
+    history: history,
+  };
+  try {
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ambilin-history-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showStatus("success", "💾 Riwayat berhasil diexport!");
+    trackEvent("history_export", { count: history.length });
+  } catch (err) {
+    showStatus("error", "Gagal export riwayat: " + err.message);
+  }
+}

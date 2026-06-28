@@ -291,6 +291,9 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .history { margin-top: 1.1rem; }
 .history__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.7rem; padding: 0 0.2rem; }
 .history__title { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-family: "Inter", sans-serif; }
+.history__actions { display: flex; gap: 0.4rem; align-items: center; }
+.history__action-btn { display: inline-flex; align-items: center; gap: 0.3rem; background: none; border: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; padding: 0.3rem 0.6rem; border-radius: 6px; transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease; font-family: inherit; }
+.history__action-btn:hover { color: var(--text); background: var(--card); border-color: var(--grad-1); }
 .history__clear { background: none; border: none; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0.3rem 0.5rem; border-radius: 6px; transition: color 0.2s ease, background 0.2s ease; font-family: inherit; }
 .history__clear:hover { color: var(--text); background: var(--card); }
 .history__list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
