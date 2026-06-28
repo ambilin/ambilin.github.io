@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#11172e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c5cff"/>
+      <stop offset="55%" stop-color="#ff5c93"/>
+      <stop offset="100%" stop-color="#21d4fd"/>
+    </linearGradient>
+    <radialGradient id="orb1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c5cff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff5c93" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff5c93" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="100" cy="80" r="300" fill="url(#orb1)"/>
+  <circle cx="1100" cy="550" r="280" fill="url(#orb2)"/>
+
+  <text x="100" y="150" font-family="Poppins, Arial, sans-serif" font-size="56" font-weight="800" fill="#eaf0ff">
+    ambil<tspan fill="#ff7eae">in</tspan>
+  </text>
+
+  <text x="100" y="320" font-family="Poppins, Arial, sans-serif" font-size="68" font-weight="800" fill="#eaf0ff">
+    Blog ambilin
+  </text>
+  <text x="100" y="395" font-family="Poppins, Arial, sans-serif" font-size="68" font-weight="800" fill="url(#accent)">
+    Tips & Panduan TikTok
+  </text>
+
+  <text x="100" y="460" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="500" fill="#9aa6c9">
+    TikTok Downloader — Gratis, Cepat, Tips & Panduan TikTok
+  </text>
+
+  <g transform="translate(100, 510)">
+    <rect width="200" height="48" rx="24" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="100" y="31" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#eaf0ff">✓ Tanpa login</text>
+    <rect x="220" width="240" height="48" rx="24" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="340" y="31" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#eaf0ff">✓ Bisa diinstal</text>
+    <rect x="480" width="220" height="48" rx="24" fill="#ffffff" fill-opacity="0.08" stroke="#ffffff" stroke-opacity="0.15"/>
+    <text x="590" y="31" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#eaf0ff">✓ Gratis 100%</text>
+  </g>
+</svg>

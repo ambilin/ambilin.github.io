@@ -1,11 +1,11 @@
 /* ambilin — sw.js (service worker v3)
    Cache-first untuk assets, network-first untuk navigasi.
    Auto-bump version untuk force update. */
-const CACHE = "ambilin-v11";
+const CACHE = "ambilin-v12";
 const ASSETS = [
   "/", "/index.html", "/fitur.html", "/faq.html", "/install.html",
   "/privacy.html", "/dmca.html", "/404.html",
-  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg", "/og-image-fitur.svg", "/og-image-faq.svg", "/og-image-install.svg", "/blog/", "/blog/cara-download-video-tiktok-tanpa-watermark.html", "/blog/download-tiktok-hd-gratis-2025.html", "/blog/cara-hapus-watermark-tiktok.html", "/indexnow-key.txt"
+  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg", "/og-image-fitur.svg", "/og-image-faq.svg", "/og-image-install.svg", "/blog/", "/blog/cara-download-video-tiktok-tanpa-watermark.html", "/blog/download-tiktok-hd-gratis-2025.html", "/blog/cara-hapus-watermark-tiktok.html", "/indexnow-key.txt", "/blog/download-lagu-tiktok-mp3-gratis.html", "/blog/cara-save-tiktok-ke-galeri.html", "/blog/download-tiktok-di-pc-laptop.html", "/blog/tiktok-downloader-online-terbaik.html", "/blog/cara-download-tiktok-slide-photo.html", "/og-image-blog-1.svg", "/og-image-blog-2.svg", "/og-image-blog-3.svg", "/og-image-blog-4.svg", "/og-image-blog-5.svg", "/og-image-blog-6.svg", "/og-image-blog-7.svg", "/og-image-blog-8.svg", "/og-image-blog-index.svg"
 ];
 
 self.addEventListener("install", (e) => {
