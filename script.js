@@ -216,7 +216,6 @@ form.addEventListener("submit", async (e) => {
   if (!platform) { showStatus("error", "Link tidak dikenali. Gunakan link Instagram, TikTok, atau YouTube."); return; }
 
   setLoading(true);
-  clearResult();
   showStatus("info", "⏳ Memproses link, mohon tunggu sebentar…");
   try {
     const data = await fetchVideo(url, platform);
@@ -547,8 +546,9 @@ if ("serviceWorker" in navigator) {
 function setLoading(isLoading) {
   downloadBtn.classList.toggle("is-loading", isLoading);
   downloadBtn.disabled = isLoading; urlInput.disabled = isLoading;
-  // Skeleton loading di resultBox saat loading
   if (isLoading) {
+    // Clear dulu, lalu tampilkan skeleton
+    resultBox.innerHTML = "";
     resultBox.hidden = false;
     resultBox.innerHTML = `
       <div class="result-card result-card--skeleton">
