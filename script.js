@@ -9,11 +9,11 @@
 document.documentElement.classList.add("js");
 
 const CONFIG = {
-  // Untuk Instagram: isi dengan URL Cloudflare Worker kamu
-  // (lihat panduan di halaman Download → cara install). Untuk YouTube & TikTok: kosongin aja.
-  SERVERLESS_ENDPOINT: "",
+  // Cloudflare Worker URL — handle YouTube + Instagram dengan multi-strategy
+  // (scrape watch page + innertube API + Piped fallback)
+  SERVERLESS_ENDPOINT: "https://ambilin-worker.nugraha-naw.workers.dev",
   TIKTOK_PUBLIC_API: "https://www.tikwm.com/api/",
-  // Multiple Piped instances sebagai fallback — kalau satu diblock YouTube, coba yang lain
+  // Piped instances untuk fallback langsung dari browser (kalau Worker gagal)
   PIPED_INSTANCES: [
     "https://api.piped.private.coffee",
     "https://pipedapi.kavin.rocks",
@@ -231,12 +231,20 @@ form.addEventListener("submit", async (e) => {
 /* ============== FETCH VIDEO — pilih API sesuai platform ========== */
 async function fetchVideo(url, platform) {
   if (platform === "tiktok") return await fetchTikTokPublic(url);
-  if (platform === "youtube") return await fetchYouTubePiped(url);
+  if (platform === "youtube") {
+    // YouTube: coba Worker dulu, kalau gagal fallback ke Piped langsung dari browser
+    try {
+      return await fetchViaServerless(url, "youtube");
+    } catch (workerErr) {
+      console.log("[ambilin] Worker gagal, coba Piped fallback:", workerErr.message);
+      // Kalau Worker gagal karena 4xx (video invalid/private), jangan coba Piped
+      if (workerErr.message && /^HTTP_4/.test(workerErr.message)) throw workerErr;
+      // Kalau YT_UNAVAILABLE, coba Piped langsung dari browser (mungkin video cached)
+      return await fetchYouTubePiped(url);
+    }
+  }
   if (platform === "instagram") {
-    // Instagram butuh Cloudflare Worker (tidak ada API publik CORS-friendly)
-    const useServerless = CONFIG.SERVERLESS_ENDPOINT && CONFIG.SERVERLESS_ENDPOINT.trim() !== "";
-    if (useServerless) return await fetchViaServerless(url, platform);
-    throw new Error("IG_NEEDS_WORKER");
+    return await fetchViaServerless(url, "instagram");
   }
   throw new Error("NO_ENDPOINT");
 }
@@ -434,23 +442,30 @@ function handleError(err, platform) {
   const code = (err && err.message) || "";
   let msg;
   switch (true) {
-    case code === "IG_NEEDS_WORKER":
-      msg = "Untuk download Instagram, kamu perlu setup Cloudflare Worker (gratis, 5 menit). Tapi tenang, TikTok & YouTube sudah bisa langsung dipakai!";
-      break;
     case code === "NO_ENDPOINT":
       msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
       break;
     case code === "INVALID_YT_URL":
       msg = "Link YouTube tidak valid. Pastikan link benar (contoh: youtube.com/watch?v=... atau youtu.be/...).";
       break;
+    case code === "YT_UNAVAILABLE":
     case code === "YT_BLOCKED":
-      msg = "YouTube sedang memblokir akses ke video ini. Coba video lain, atau coba lagi dalam beberapa menit. Kalau sering gagal, mungkin perlu setup Cloudflare Worker sebagai proxy.";
+      msg = "Video ini tidak bisa didownload saat ini — YouTube sedang memblokir akses. Coba video lain, atau coba lagi beberapa menit lagi. Beberapa video publik bisa, beberapa lagi dibatasi YouTube.";
+      break;
+    case code === "INVALID_IG_URL":
+      msg = "Link Instagram tidak valid. Pastikan link benar (contoh: instagram.com/reel/XXX atau instagram.com/p/XXX).";
       break;
     case code === "EMPTY":
       msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private), dan bukan livestream.";
       break;
     case code === "API_FAIL":
       msg = "Server downloader sedang sibuk. Coba lagi sebentar, atau coba video lain.";
+      break;
+    case code === "UNSUPPORTED_PLATFORM":
+      msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
+      break;
+    case code === "FETCH_FAIL":
+      msg = "Gagal terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.";
       break;
     case /^HTTP_4/.test(code):
       msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik (bukan private/age-restricted).";
