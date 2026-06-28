@@ -98,7 +98,7 @@
       { group: "detectPlatform", name: "URL dengan case campuran", fn: () => detectPlatform("HTTPS://WWW.TIKTOK.COM/@user/video/123"), expect: "tiktok" },
 
       // escapeHtml
-      { group: "escapeHtml", name: "Tag HTML", fn: () => escapeHtml("<script>alert(1)</script>"), expect: "&lt;script&gt;alert(1)&lt;/script&gt;" },
+      { group: "escapeHtml", name: "Tag HTML", fn: () => escapeHtml("<scr" + "ipt>alert(1)</scr" + "ipt>"), expect: "&lt;script&gt;alert(1)&lt;/script&gt;" },
       { group: "escapeHtml", name: "Quote ganda", fn: () => escapeHtml('hei "kamu"'), expect: "hei &quot;kamu&quot;" },
       { group: "escapeHtml", name: "Quote tunggal", fn: () => escapeHtml("hei 'kamu'"), expect: "hei &#39;kamu&#39;" },
       { group: "escapeHtml", name: "Ampersand", fn: () => escapeHtml("a & b"), expect: "a &amp; b" },
