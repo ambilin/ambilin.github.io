@@ -670,6 +670,12 @@ if (shareBtn) {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     if (event.data && event.data.type === "SW_UPDATED") {
+      // Auto-reload kalau user belum scroll (first load case)
+      if (window.pageYOffset < 100 && !sessionStorage.getItem("ambilin-autoreloaded")) {
+        sessionStorage.setItem("ambilin-autoreloaded", "1");
+        window.location.reload();
+        return;
+      }
       showUpdateBanner();
     }
   });
