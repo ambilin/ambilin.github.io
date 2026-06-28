@@ -39,6 +39,8 @@ const toTopBtn = document.getElementById("toTop");
 const scrollProgress = document.getElementById("scrollProgress");
 const installBtn = document.getElementById("installBtn");
 const metaThemeColor = document.getElementById("metaThemeColor");
+const historyBox = document.getElementById("historyBox");
+const shareBtn = document.getElementById("shareBtn");
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -420,6 +422,14 @@ async function triggerDownload(fileUrl, data, label) {
   const safeName = `${data.platform}-${safeSlug}`;
   const ext = /audio|mp3|m4a/i.test(label) ? "m4a" : "mp4";
   showStatus("info", "⬇️ Menyiapkan file untuk diunduh…");
+  // Simpan ke riwayat (lakukan paralel dengan download, biar nggak nunggu)
+  saveHistory({
+    url: fileUrl,
+    title: data.title || "Video",
+    platform: data.platform,
+    thumbnail: data.thumbnail || "",
+    timestamp: Date.now(),
+  });
   try {
     const res = await fetch(fileUrl);
     if (!res.ok) throw new Error("blob");
@@ -537,6 +547,20 @@ if ("serviceWorker" in navigator) {
 function setLoading(isLoading) {
   downloadBtn.classList.toggle("is-loading", isLoading);
   downloadBtn.disabled = isLoading; urlInput.disabled = isLoading;
+  // Skeleton loading di resultBox saat loading
+  if (isLoading) {
+    resultBox.hidden = false;
+    resultBox.innerHTML = `
+      <div class="result-card result-card--skeleton">
+        <div class="skeleton skeleton--media"></div>
+        <div class="result-card__body">
+          <div class="skeleton skeleton--line skeleton--title"></div>
+          <div class="skeleton skeleton--line skeleton--meta"></div>
+          <div class="skeleton skeleton--line skeleton--meta"></div>
+          <div class="skeleton skeleton--btn"></div>
+        </div>
+      </div>`;
+  }
 }
 function showStatus(type, message) { statusBox.className = `status status--${type}`; statusBox.textContent = message; statusBox.hidden = false; }
 function hideStatus() { statusBox.hidden = true; }
@@ -545,3 +569,100 @@ function formatDuration(sec) { sec = Math.round(Number(sec) || 0); const m = Mat
 function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : str; }
 function escapeHtml(str) { return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 function escapeAttr(str) { return escapeHtml(str); }
+
+/* ===================== RIWAYAT DOWNLOAD ========================== */
+const HISTORY_KEY = "ambilin-history";
+const HISTORY_MAX = 5;
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+  } catch { return []; }
+}
+
+function saveHistory(item) {
+  const history = getHistory().filter((h) => h.url !== item.url);
+  history.unshift(item);
+  const trimmed = history.slice(0, HISTORY_MAX);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed)); } catch {}
+  renderHistory();
+}
+
+function clearHistory() {
+  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!historyBox) return;
+  const history = getHistory();
+  if (history.length === 0) {
+    historyBox.hidden = true;
+    historyBox.innerHTML = "";
+    return;
+  }
+  historyBox.hidden = false;
+  historyBox.innerHTML = `
+    <div class="history__head">
+      <h3 class="history__title">Riwayat terakhir</h3>
+      <button type="button" class="history__clear" id="clearHistoryBtn" aria-label="Hapus riwayat">Hapus</button>
+    </div>
+    <ul class="history__list">
+      ${history.map((h) => `
+        <li class="history__item">
+          <button type="button" class="history__item-btn" data-url="${escapeAttr(h.url)}">
+            ${h.thumbnail ? `<img src="${escapeAttr(h.thumbnail)}" alt="" class="history__thumb" loading="lazy" />` : `<div class="history__thumb history__thumb--placeholder">${escapeHtml(capitalize(h.platform || "video").charAt(0))}</div>`}
+            <div class="history__info">
+              <p class="history__item-title">${escapeHtml(h.title.slice(0, 50))}${h.title.length > 50 ? "…" : ""}</p>
+              <span class="history__item-meta">${escapeHtml(capitalize(h.platform || "video"))} · ${new Date(h.timestamp).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}</span>
+            </div>
+          </button>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+  const clearBtn = document.getElementById("clearHistoryBtn");
+  if (clearBtn) clearBtn.addEventListener("click", clearHistory);
+  historyBox.querySelectorAll(".history__item-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      urlInput.value = btn.dataset.url;
+      updatePlatformIcon(btn.dataset.url);
+      urlInput.focus();
+      form.requestSubmit();
+    });
+  });
+}
+
+/* ===================== SHARE BUTTON ============================= */
+if (shareBtn) {
+  shareBtn.addEventListener("click", async () => {
+    const shareData = {
+      title: "ambilin — Downloader Video Tanpa Watermark",
+      text: "Download video IG, TikTok & YouTube tanpa watermark gratis!",
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch {}
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        showStatus("success", "🔗 Link ambilin disalin ke clipboard!");
+      } catch {
+        showStatus("info", "Bagikan link ini: " + shareData.url);
+      }
+    }
+  });
+}
+
+/* ===================== SERVICE WORKER UPDATE ==================== */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SW_UPDATED") {
+      // SW baru terdeteksi — kasih tau user (subtle, no force refresh)
+      console.log("[ambilin] Service worker updated.");
+    }
+  });
+}
+
+/* ===================== INIT HISTORY ON LOAD ==================== */
+window.addEventListener("load", renderHistory);

@@ -1,8 +1,11 @@
-/* ambilin — sw.js (service worker)
-   Cache statis buat offline + buat app jalan cepat.
-   API & file video TIDAK di-cache (cross-origin). */
-const CACHE = "ambilin-v2";
-const ASSETS = ["/", "/index.html", "/fitur.html", "/faq.html", "/install.html", "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg"];
+/* ambilin — sw.js (service worker v3)
+   Cache-first untuk assets, network-first untuk navigasi.
+   Auto-bump version untuk force update. */
+const CACHE = "ambilin-v3";
+const ASSETS = [
+  "/", "/index.html", "/fitur.html", "/faq.html", "/install.html",
+  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg"
+];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -15,6 +18,9 @@ self.addEventListener("activate", (e) => {
     caches.keys()
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
+      // Kasih tau semua client buat refresh biar dapat kode baru
+      .then(() => self.clients.matchAll({ type: "window" }))
+      .then((clients) => clients.forEach((c) => c.postMessage({ type: "SW_UPDATED" })))
   );
 });
 
@@ -24,6 +30,7 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Navigasi: network-first (selalu dapat versi terbaru halaman)
   if (req.mode === "navigate") {
     e.respondWith(
       fetch(req)
@@ -36,13 +43,15 @@ self.addEventListener("fetch", (e) => {
     );
     return;
   }
+  // Aset lain: stale-while-revalidate (cepat + tetap update)
   e.respondWith(
-    caches.match(req).then((cached) =>
-      cached || fetch(req).then((res) => {
+    caches.match(req).then((cached) => {
+      const fetchPromise = fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
         return res;
-      }).catch(() => cached)
-    )
+      }).catch(() => cached);
+      return cached || fetchPromise;
+    })
   );
 });
