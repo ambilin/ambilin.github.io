@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "ambilin — Downloader Video Tanpa Watermark",
+  "name": "ambilin — Downloader Video TikTok Tanpa Watermark",
   "short_name": "ambilin",
-  "description": "Download video Instagram, TikTok & YouTube tanpa watermark. Bisa diinstal & share langsung dari TikTok.",
+  "description": "Download video TikTok tanpa watermark. Bisa diinstal & share langsung dari TikTok.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

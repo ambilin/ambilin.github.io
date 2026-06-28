@@ -9,19 +9,7 @@
 document.documentElement.classList.add("js");
 
 const CONFIG = {
-  // Cloudflare Worker URL — handle YouTube + Instagram dengan multi-strategy
-  // (scrape watch page + innertube API + Piped fallback)
-  SERVERLESS_ENDPOINT: "https://ambilin-worker.nugraha-naw.workers.dev",
   TIKTOK_PUBLIC_API: "https://www.tikwm.com/api/",
-  // Piped instances untuk fallback langsung dari browser (kalau Worker gagal)
-  PIPED_INSTANCES: [
-    "https://api.piped.private.coffee",
-    "https://pipedapi.kavin.rocks",
-    "https://pipedapi.adminforge.de",
-    "https://pipedapi.reallyaweso.me",
-    "https://pipedapi.r4fo.com",
-  ],
-  PREFER_PUBLIC_TIKTOK: true,
 };
 
 /* ELEMEN DOM */
@@ -174,20 +162,14 @@ function detectPlatform(url) {
   if (!url) return null;
   const u = url.toLowerCase();
   if (/tiktok\.com|vt\.tiktok|vm\.tiktok/.test(u)) return "tiktok";
-  if (/instagram\.com|instagr\.am/.test(u)) return "instagram";
-  if (/youtube\.com|youtu\.be/.test(u)) return "youtube";
   return null;
 }
 
 function updatePlatformIcon(url) {
   const platform = detectPlatform(url);
-  const icons = {
-    tiktok: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.1v12.4a2.59 2.59 0 1 1-2.59-2.59c.27 0 .53.04.77.12V9.77a5.7 5.7 0 0 0-.77-.05A5.69 5.69 0 1 0 15.54 15.4V8.83a7.34 7.34 0 0 0 4.3 1.38V7.1a4.28 4.28 0 0 1-3.24-1.28z"/></svg>',
-    instagram: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
-    youtube: '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M23 12s0-3.3-.42-4.88a2.53 2.53 0 0 0-1.78-1.79C19.22 5 12 5 12 5s-7.22 0-8.8.33a2.53 2.53 0 0 0-1.78 1.79C1 8.7 1 12 1 12s0 3.3.42 4.88a2.53 2.53 0 0 0 1.78 1.79C4.78 19 12 19 12 19s7.22 0 8.8-.33a2.53 2.53 0 0 0 1.78-1.79C23 15.3 23 12 23 12zM9.75 15.02V8.98L15.5 12z"/></svg>',
-  };
+  const tiktokIcon = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.1v12.4a2.59 2.59 0 1 1-2.59-2.59c.27 0 .53.04.77.12V9.77a5.7 5.7 0 0 0-.77-.05A5.69 5.69 0 1 0 15.54 15.4V8.83a7.34 7.34 0 0 0 4.3 1.38V7.1a4.28 4.28 0 0 1-3.24-1.28z"/></svg>';
   const linkIcon = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
-  platformIcon.innerHTML = platform ? icons[platform] : linkIcon;
+  platformIcon.innerHTML = platform ? tiktokIcon : linkIcon;
   platformIcon.style.color = platform ? "var(--grad-1)" : "var(--text-muted)";
 }
 
@@ -238,7 +220,7 @@ form.addEventListener("submit", async (e) => {
   if (!url) { showStatus("error", "Tempel dulu link videonya ya. 🙂"); urlInput.focus(); return; }
   if (!/^https?:\/\//i.test(url)) { showStatus("error", "Link tidak valid. Pastikan diawali http:// atau https://"); return; }
   const platform = detectPlatform(url);
-  if (!platform) { showStatus("error", "Link tidak dikenali. Gunakan link Instagram, TikTok, atau YouTube."); return; }
+  if (!platform) { showStatus("error", "Link tidak dikenali. ambilin hanya support TikTok. Pastikan link dari tiktok.com, vt.tiktok, atau vm.tiktok."); return; }
 
   setLoading(true);
   showStatus("info", "⏳ Memproses link, mohon tunggu sebentar…");
@@ -257,24 +239,9 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-/* ============== FETCH VIDEO — pilih API sesuai platform ========== */
+/* ============== FETCH VIDEO — TikTok only =================== */
 async function fetchVideo(url, platform) {
   if (platform === "tiktok") return await fetchTikTokPublic(url);
-  if (platform === "youtube") {
-    // YouTube: coba Worker dulu, kalau gagal fallback ke Piped langsung dari browser
-    try {
-      return await fetchViaServerless(url, "youtube");
-    } catch (workerErr) {
-      console.log("[ambilin] Worker gagal, coba Piped fallback:", workerErr.message);
-      // Kalau Worker gagal karena 4xx (video invalid/private), jangan coba Piped
-      if (workerErr.message && /^HTTP_4/.test(workerErr.message)) throw workerErr;
-      // Kalau YT_UNAVAILABLE, coba Piped langsung dari browser (mungkin video cached)
-      return await fetchYouTubePiped(url);
-    }
-  }
-  if (platform === "instagram") {
-    return await fetchViaServerless(url, "instagram");
-  }
   throw new Error("NO_ENDPOINT");
 }
 
@@ -296,110 +263,6 @@ async function fetchTikTokPublic(url) {
     author: d.author ? d.author.nickname || d.author.unique_id : "TikTok",
     thumbnail: d.cover || d.origin_cover, duration: d.duration, medias,
   });
-}
-
-/* ---------- YOUTUBE via Piped API (multi-instance fallback + retry) ---------- */
-async function fetchYouTubePiped(url) {
-  // Extract video ID dari berbagai format URL YouTube
-  let videoId = null;
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /youtube\.com\/.*[?&]v=([a-zA-Z0-9_-]{11})/,
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) { videoId = m[1]; break; }
-  }
-  if (!videoId) throw new Error("INVALID_YT_URL");
-
-  // Coba tiap instance Piped, retry 2x per instance kalau dapat 5xx (YouTube block sementara)
-  let lastError = null;
-  for (const instance of CONFIG.PIPED_INSTANCES) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const apiUrl = `${instance}/streams/${videoId}`;
-        const res = await fetch(apiUrl, {
-          headers: { "Accept": "application/json" },
-          signal: AbortSignal.timeout(10000), // timeout 10 detik
-        });
-        if (!res.ok) {
-          lastError = new Error("HTTP_" + res.status);
-          // 5xx = YouTube block IP instance ini, coba instance lain (jangan retry)
-          if (res.status >= 500) break;
-          // 4xx = video invalid/private, langsung throw
-          throw lastError;
-        }
-        const data = await res.json();
-        if (data.error) {
-          // Cek kalau error-nya "Sign in to confirm you're not a bot" → YouTube block, coba instance lain
-          if (data.error.includes("not a bot") || data.error.includes("LOGIN_REQUIRED")) {
-            lastError = new Error("YT_BLOCKED");
-            break; // langsung coba instance lain
-          }
-          lastError = new Error("API_FAIL");
-          continue;
-        }
-
-        const medias = [];
-        // Ambil video streams yang combined (video + audio), skip yang videoOnly
-        const videoStreams = (data.videoStreams || []).filter(s => s.videoOnly === false && s.format === "MPEG_4");
-        // Sort by quality descending (HD dulu)
-        videoStreams.sort((a, b) => {
-          const qa = parseInt(a.quality) || 0;
-          const qb = parseInt(b.quality) || 0;
-          return qb - qa;
-        });
-        videoStreams.slice(0, 3).forEach(s => {
-          medias.push({
-            label: `Video ${s.quality}`,
-            url: s.url,
-            kind: "video",
-          });
-        });
-
-        // Audio streams (ambil yang mp4/m4a)
-        const audioStreams = (data.audioStreams || []).filter(s => s.mimeType && s.mimeType.includes("audio/mp4"));
-        if (audioStreams.length > 0) {
-          medias.push({
-            label: "Audio (M4A)",
-            url: audioStreams[0].url,
-            kind: "audio",
-          });
-        }
-
-        if (medias.length === 0) {
-          lastError = new Error("EMPTY");
-          continue;
-        }
-
-        // SUCCESS — return data
-        return normalize({
-          platform: "youtube",
-          title: data.title || "Video YouTube",
-          author: data.uploader || "YouTube",
-          thumbnail: data.thumbnailUrl || "",
-          duration: data.duration,
-          medias,
-        });
-      } catch (err) {
-        // AbortSignal.timeout atau network error → coba instance lain
-        lastError = err;
-        if (err.message && err.message.startsWith("HTTP_4")) throw err; // 4xx langsung throw
-        break; // coba instance lain
-      }
-    }
-  }
-  throw lastError || new Error("API_FAIL");
-}
-
-/* ---------- INSTAGRAM via Cloudflare Worker ---------- */
-async function fetchViaServerless(url, platform) {
-  const endpoint = `${CONFIG.SERVERLESS_ENDPOINT}?url=${encodeURIComponent(url)}&platform=${platform}`;
-  const res = await fetch(endpoint);
-  if (!res.ok) throw new Error("HTTP_" + res.status);
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
-  return normalize(json);
 }
 
 function normalize(data) {
@@ -569,41 +432,25 @@ function handleError(err, platform) {
   let msg;
   switch (true) {
     case code === "NO_ENDPOINT":
-      msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
-      break;
-    case code === "INVALID_YT_URL":
-      msg = "Link YouTube tidak valid. Pastikan link benar (contoh: youtube.com/watch?v=... atau youtu.be/...).";
-      break;
-    case code === "YT_UNAVAILABLE":
-    case code === "YT_BLOCKED":
-      msg = "Video ini tidak bisa didownload saat ini — YouTube sedang memblokir akses. Coba video lain, atau coba lagi beberapa menit lagi. Beberapa video publik bisa, beberapa lagi dibatasi YouTube.";
-      break;
-    case code === "INVALID_IG_URL":
-      msg = "Link Instagram tidak valid. Pastikan link benar (contoh: instagram.com/reel/XXX atau instagram.com/p/XXX).";
+      msg = "Hanya link TikTok yang didukung. Pastikan link dari tiktok.com, vt.tiktok, atau vm.tiktok.";
       break;
     case code === "EMPTY":
       msg = "Tidak menemukan video pada link ini. Pastikan video bersifat publik (bukan private), dan bukan livestream.";
       break;
     case code === "API_FAIL":
-      msg = "Server downloader sedang sibuk. Coba lagi sebentar, atau coba video lain.";
-      break;
-    case code === "UNSUPPORTED_PLATFORM":
-      msg = "Platform belum didukung. Gunakan link Instagram, TikTok, atau YouTube.";
-      break;
-    case code === "FETCH_FAIL":
-      msg = "Gagal terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.";
+      msg = "Server TikTok sedang sibuk. Coba lagi sebentar, atau coba video lain.";
       break;
     case /^HTTP_4/.test(code):
-      msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik (bukan private/age-restricted).";
+      msg = "Link ditolak server (4xx). Cek kembali apakah link benar dan video publik.";
       break;
     case /^HTTP_5/.test(code):
-      msg = "Server downloader sedang bermasalah (5xx). Coba lagi beberapa saat, atau coba video lain.";
+      msg = "Server TikTok sedang bermasalah (5xx). Coba lagi beberapa saat.";
       break;
     case /Failed to fetch|NetworkError|TypeError|timeout|Timeout/i.test(code):
-      msg = "Gagal terhubung ke server (koneksi timeout). Cek koneksi internet kamu, lalu coba lagi. Kalau YouTube masih gagal, servernya mungkin lagi diblock — coba video lain dulu.";
+      msg = "Gagal terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.";
       break;
     default:
-      msg = "Terjadi kesalahan saat memproses. Coba lagi atau gunakan link lain.";
+      msg = "Terjadi kesalahan saat memproses. Coba lagi atau gunakan link TikTok lain.";
   }
   showStatus("error", "⚠️ " + msg);
 }

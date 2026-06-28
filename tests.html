@@ -43,8 +43,6 @@
       if (!url) return null;
       const u = url.toLowerCase();
       if (/tiktok\.com|vt\.tiktok|vm\.tiktok/.test(u)) return "tiktok";
-      if (/instagram\.com|instagr\.am/.test(u)) return "instagram";
-      if (/youtube\.com|youtu\.be/.test(u)) return "youtube";
       return null;
     }
 
@@ -86,12 +84,6 @@
       { group: "detectPlatform", name: "TikTok URL standar", fn: () => detectPlatform("https://www.tiktok.com/@user/video/123"), expect: "tiktok" },
       { group: "detectPlatform", name: "TikTok short link (vt.tiktok)", fn: () => detectPlatform("https://vt.tiktok.com/Z123abc/"), expect: "tiktok" },
       { group: "detectPlatform", name: "TikTok short link (vm.tiktok)", fn: () => detectPlatform("https://vm.tiktok.com/Z123abc/"), expect: "tiktok" },
-      { group: "detectPlatform", name: "Instagram reel", fn: () => detectPlatform("https://www.instagram.com/reel/Cxyz123/"), expect: "instagram" },
-      { group: "detectPlatform", name: "Instagram post", fn: () => detectPlatform("https://www.instagram.com/p/Cabc456/"), expect: "instagram" },
-      { group: "detectPlatform", name: "Instagram short (instagr.am)", fn: () => detectPlatform("https://instagr.am/p/Cabc"), expect: "instagram" },
-      { group: "detectPlatform", name: "YouTube watch", fn: () => detectPlatform("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), expect: "youtube" },
-      { group: "detectPlatform", name: "YouTube short (youtu.be)", fn: () => detectPlatform("https://youtu.be/dQw4w9WgXcQ"), expect: "youtube" },
-      { group: "detectPlatform", name: "YouTube Shorts", fn: () => detectPlatform("https://www.youtube.com/shorts/abc12345678"), expect: "youtube" },
       { group: "detectPlatform", name: "URL non-platform", fn: () => detectPlatform("https://twitter.com/user/status/123"), expect: null },
       { group: "detectPlatform", name: "URL kosong", fn: () => detectPlatform(""), expect: null },
       { group: "detectPlatform", name: "URL null", fn: () => detectPlatform(null), expect: null },

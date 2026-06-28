@@ -70,11 +70,9 @@
 
     <section class="legal-page__section">
       <h2>2. Data yang Kami Kumpulkan</h2>
-      <p><strong>Kami TIDAK menyimpan video yang kamu unduh.</strong> Semua proses download berjalan langsung di browser kamu. Link video yang kamu tempel tidak dikirim ke server kami kecuali untuk:</p>
+      <p><strong>Kami TIDAK menyimpan video yang kamu unduh.</strong> Semua proses download berjalan langsung di browser kamu. Link video yang kamu tempel dikirim ke:</p>
       <ul>
-        <li><strong>TikTok:</strong> dikirim ke <code>tikwm.com</code> (API publik) untuk mengambil metadata video</li>
-        <li><strong>YouTube:</strong> dikirim ke Cloudflare Worker kami (<code>ambilin-worker.nugraha-naw.workers.dev</code>) untuk scraping</li>
-        <li><strong>Instagram:</strong> dikirim ke Cloudflare Worker yang sama untuk scraping embed page</li>
+        <li><strong>tikwm.com</strong> (API publik TikTok downloader) untuk mengambil metadata video</li>
       </ul>
       <p>Server kami tidak menyimpan log permanen dari URL yang diproses.</p>
     </section>
@@ -111,8 +109,6 @@
       <p>Saat download, web kami mengakses API pihak ketiga:</p>
       <ul>
         <li><strong>tikwm.com</strong> — API publik TikTok downloader</li>
-        <li><strong>api.piped.private.coffee</strong> — API publik YouTube (open source)</li>
-        <li><strong>Cloudflare Workers</strong> — serverless function untuk YouTube & Instagram scraping</li>
         <li><strong>quickchart.io</strong> — generate QR code untuk fitur transfer HP</li>
         <li><strong>Google Fonts</strong> — font Inter & Poppins</li>
       </ul>
