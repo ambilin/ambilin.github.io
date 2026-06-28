@@ -7,6 +7,7 @@ Allow: /
 # Block folder internal / cache
 Disallow: /sw.js
 Disallow: /generate-icons.html
+Disallow: /tests.html
 
 # Lokasi sitemap
 Sitemap: https://ambilin.github.io/sitemap.xml

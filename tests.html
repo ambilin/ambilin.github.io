@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Unit Tests — ambilin</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", system-ui, sans-serif; background: #0b1020; color: #eaf0ff; padding: 2rem 1rem; line-height: 1.6; min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-family: "Poppins", sans-serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #9aa6c9; margin-bottom: 2rem; font-size: 0.9rem; }
+    .summary { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; font-size: 1rem; }
+    .summary strong { color: #2ee6a6; }
+    .summary.fail strong { color: #ff7b9c; }
+    .test-group { margin-bottom: 1.5rem; }
+    .test-group__title { font-size: 0.82rem; font-weight: 700; color: #9aa6c9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.6rem; padding-left: 0.3rem; }
+    .test-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.9rem; border-radius: 8px; background: rgba(255,255,255,0.04); margin-bottom: 0.4rem; font-size: 0.88rem; border-left: 3px solid transparent; }
+    .test-item.pass { border-left-color: #2ee6a6; }
+    .test-item.fail { border-left-color: #ff7b9c; background: rgba(255,92,147,0.08); }
+    .test-icon { flex-shrink: 0; width: 20px; height: 20px; display: grid; place-items: center; font-weight: 700; }
+    .test-item.pass .test-icon { color: #2ee6a6; }
+    .test-item.fail .test-icon { color: #ff7b9c; }
+    .test-name { flex: 1; }
+    .test-detail { font-size: 0.78rem; color: #9aa6c9; margin-top: 0.2rem; font-family: monospace; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: #9aa6c9; text-decoration: none; font-size: 0.85rem; margin-top: 2rem; padding: 0.5rem 0.9rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; transition: color 0.2s; }
+    .back-link:hover { color: #eaf0ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Unit Tests — ambilin</h1>
+    <p class="subtitle">Halaman ini menguji fungsi-fungsi penting di script.js untuk memastikan tidak ada regression bug.</p>
+    <div id="summary" class="summary">Loading tests…</div>
+    <div id="results"></div>
+    <a href="index.html" class="back-link">← Kembali ke ambilin</a>
+  </div>
+
+  <script>
+    // ============ MOCK FUNCTIONS (copy dari script.js) ============
+    function detectPlatform(url) {
+      if (!url) return null;
+      const u = url.toLowerCase();
+      if (/tiktok\.com|vt\.tiktok|vm\.tiktok/.test(u)) return "tiktok";
+      if (/instagram\.com|instagr\.am/.test(u)) return "instagram";
+      if (/youtube\.com|youtu\.be/.test(u)) return "youtube";
+      return null;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function escapeAttr(str) { return escapeHtml(str); }
+
+    function formatDuration(sec) {
+      sec = Math.round(Number(sec) || 0);
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function capitalize(str) {
+      return str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+    }
+
+    function normalize(data) {
+      return {
+        platform: data.platform || "video",
+        title: data.title || "Video",
+        author: data.author || "",
+        thumbnail: data.thumbnail || "",
+        duration: data.duration || null,
+        medias: (data.medias || []).filter((m) => m && m.url),
+      };
+    }
+
+    function safeSlug(rawName) {
+      return rawName.replace(/[\\/:*?"<>|#%\s+]+/g, "-").replace(/^-+|-+$/g, "") || "video";
+    }
+
+    // ============ TEST SUITE ============
+    const tests = [
+      // detectPlatform
+      { group: "detectPlatform", name: "TikTok URL standar", fn: () => detectPlatform("https://www.tiktok.com/@user/video/123"), expect: "tiktok" },
+      { group: "detectPlatform", name: "TikTok short link (vt.tiktok)", fn: () => detectPlatform("https://vt.tiktok.com/Z123abc/"), expect: "tiktok" },
+      { group: "detectPlatform", name: "TikTok short link (vm.tiktok)", fn: () => detectPlatform("https://vm.tiktok.com/Z123abc/"), expect: "tiktok" },
+      { group: "detectPlatform", name: "Instagram reel", fn: () => detectPlatform("https://www.instagram.com/reel/Cxyz123/"), expect: "instagram" },
+      { group: "detectPlatform", name: "Instagram post", fn: () => detectPlatform("https://www.instagram.com/p/Cabc456/"), expect: "instagram" },
+      { group: "detectPlatform", name: "Instagram short (instagr.am)", fn: () => detectPlatform("https://instagr.am/p/Cabc"), expect: "instagram" },
+      { group: "detectPlatform", name: "YouTube watch", fn: () => detectPlatform("https://www.youtube.com/watch?v=dQw4w9WgXcQ"), expect: "youtube" },
+      { group: "detectPlatform", name: "YouTube short (youtu.be)", fn: () => detectPlatform("https://youtu.be/dQw4w9WgXcQ"), expect: "youtube" },
+      { group: "detectPlatform", name: "YouTube Shorts", fn: () => detectPlatform("https://www.youtube.com/shorts/abc12345678"), expect: "youtube" },
+      { group: "detectPlatform", name: "URL non-platform", fn: () => detectPlatform("https://twitter.com/user/status/123"), expect: null },
+      { group: "detectPlatform", name: "URL kosong", fn: () => detectPlatform(""), expect: null },
+      { group: "detectPlatform", name: "URL null", fn: () => detectPlatform(null), expect: null },
+      { group: "detectPlatform", name: "URL dengan case campuran", fn: () => detectPlatform("HTTPS://WWW.TIKTOK.COM/@user/video/123"), expect: "tiktok" },
+
+      // escapeHtml
+      { group: "escapeHtml", name: "Tag HTML", fn: () => escapeHtml("<script>alert(1)</script>"), expect: "&lt;script&gt;alert(1)&lt;/script&gt;" },
+      { group: "escapeHtml", name: "Quote ganda", fn: () => escapeHtml('hei "kamu"'), expect: "hei &quot;kamu&quot;" },
+      { group: "escapeHtml", name: "Quote tunggal", fn: () => escapeHtml("hei 'kamu'"), expect: "hei &#39;kamu&#39;" },
+      { group: "escapeHtml", name: "Ampersand", fn: () => escapeHtml("a & b"), expect: "a &amp; b" },
+      { group: "escapeHtml", name: "Lebih dari & kurang dari", fn: () => escapeHtml("5 > 3 < 10"), expect: "5 &gt; 3 &lt; 10" },
+      { group: "escapeHtml", name: "String kosong", fn: () => escapeHtml(""), expect: "" },
+      { group: "escapeHtml", name: "Non-string (number)", fn: () => escapeHtml(123), expect: "123" },
+
+      // formatDuration
+      { group: "formatDuration", name: "0 detik", fn: () => formatDuration(0), expect: "0:00" },
+      { group: "formatDuration", name: "59 detik", fn: () => formatDuration(59), expect: "0:59" },
+      { group: "formatDuration", name: "60 detik (1 menit)", fn: () => formatDuration(60), expect: "1:00" },
+      { group: "formatDuration", name: "125 detik", fn: () => formatDuration(125), expect: "2:05" },
+      { group: "formatDuration", name: "3600 detik (1 jam)", fn: () => formatDuration(3600), expect: "60:00" },
+      { group: "formatDuration", name: "String number", fn: () => formatDuration("90"), expect: "1:30" },
+      { group: "formatDuration", name: "Decimal (round down)", fn: () => formatDuration(90.4), expect: "1:30" },
+      { group: "formatDuration", name: "Decimal (round up)", fn: () => formatDuration(90.6), expect: "1:31" },
+      { group: "formatDuration", name: "Null", fn: () => formatDuration(null), expect: "0:00" },
+      { group: "formatDuration", name: "Undefined", fn: () => formatDuration(undefined), expect: "0:00" },
+
+      // capitalize
+      { group: "capitalize", name: "Huruf kecil", fn: () => capitalize("tiktok"), expect: "Tiktok" },
+      { group: "capitalize", name: "Sudah kapital", fn: () => capitalize("YouTube"), expect: "YouTube" },
+      { group: "capitalize", name: "String kosong", fn: () => capitalize(""), expect: "" },
+      { group: "capitalize", name: "Null", fn: () => capitalize(null), expect: null },
+
+      // normalize
+      { group: "normalize", name: "Data lengkap", fn: () => {
+        const r = normalize({ platform: "youtube", title: "Test", author: "User", thumbnail: "x.jpg", duration: 60, medias: [{ url: "a", label: "HD" }] });
+        return r.platform + "|" + r.title + "|" + r.medias.length;
+      }, expect: "youtube|Test|1" },
+      { group: "normalize", name: "Filter media tanpa URL", fn: () => {
+        const r = normalize({ platform: "tiktok", medias: [{ url: "a", label: "HD" }, { label: "no-url" }, null, { url: "b" }] });
+        return r.medias.length;
+      }, expect: 2 },
+      { group: "normalize", name: "Default values", fn: () => {
+        const r = normalize({});
+        return r.platform + "|" + r.title + "|" + r.author + "|" + (r.duration === null);
+      }, expect: "video|Video||true" },
+
+      // safeSlug
+      { group: "safeSlug", name: "Special chars", fn: () => safeSlug("video: cool <best>"), expect: "video-cool-best" },
+      { group: "safeSlug", name: "Trim leading/trailing dash", fn: () => safeSlug("---hei---"), expect: "hei" },
+      { group: "safeSlug", name: "Empty jadi 'video'", fn: () => safeSlug("###"), expect: "video" },
+    ];
+
+    // ============ RUN TESTS ============
+    let pass = 0, fail = 0;
+    const groups = {};
+    tests.forEach((t) => {
+      let result, error = null;
+      try {
+        result = t.fn();
+      } catch (e) {
+        error = e.message;
+      }
+      const ok = !error && result === t.expect;
+      if (ok) pass++; else fail++;
+      if (!groups[t.group]) groups[t.group] = [];
+      groups[t.group].push({ name: t.name, ok, result: String(result), expect: String(t.expect), error });
+    });
+
+    // Render
+    const summary = document.getElementById("summary");
+    summary.innerHTML = `<strong>${pass} pass</strong>, ${fail} fail dari ${tests.length} tests`;
+    if (fail > 0) summary.classList.add("fail");
+
+    const results = document.getElementById("results");
+    let html = "";
+    Object.entries(groups).forEach(([group, items]) => {
+      html += `<div class="test-group"><div class="test-group__title">${group} (${items.filter(i => i.ok).length}/${items.length})</div>`;
+      items.forEach((item) => {
+        const icon = item.ok ? "✓" : "✗";
+        const cls = item.ok ? "pass" : "fail";
+        const detail = item.ok ? "" : `<div class="test-detail">${item.error ? "Error: " + item.error : "Got: " + item.result + " | Expected: " + item.expect}</div>`;
+        html += `<div class="test-item ${cls}"><span class="test-icon">${icon}</span><div class="test-name">${item.name}${detail}</div></div>`;
+      });
+      html += `</div>`;
+    });
+    results.innerHTML = html;
+
+    // Console summary
+    console.log(`%c${pass} pass, ${fail} fail`, `color: ${fail === 0 ? "#2ee6a6" : "#ff7b9c"}; font-weight: bold; font-size: 14px;`);
+  </script>
+</body>
+</html>

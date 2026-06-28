@@ -44,6 +44,13 @@ const shareBtn = document.getElementById("shareBtn");
 
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+/* ===================== ANALYTICS HELPER ========================= */
+function trackEvent(name, params = {}) {
+  if (typeof gtag === "function") {
+    try { gtag("event", name, params); } catch {}
+  }
+}
+
 /* ============================ TEMA ============================== */
 function updateThemeColor(theme) {
   if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020");
@@ -52,13 +59,30 @@ function setTheme(next) {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("ambilin-theme", next);
   updateThemeColor(next);
+  trackEvent("theme_toggle", { theme: next });
 }
+
 (function initTheme() {
   const saved = localStorage.getItem("ambilin-theme");
-  const theme = saved || "dark";
+  let theme;
+  if (saved) {
+    theme = saved;
+  } else {
+    // AUTO: ikut system preference kalau user belum pernah set
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
   document.documentElement.setAttribute("data-theme", theme);
   updateThemeColor(theme);
 })();
+
+// Listen system theme changes (kalau user belum set manual)
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+  if (!localStorage.getItem("ambilin-theme")) {
+    const newTheme = e.matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    updateThemeColor(newTheme);
+  }
+});
 
 themeToggle.addEventListener("click", () => {
   const current = document.documentElement.getAttribute("data-theme");
@@ -135,6 +159,7 @@ if (prefersReducedMotion || !("IntersectionObserver" in window)) {
 
 /* ============================ TOMBOL TEMPEL ===================== */
 pasteBtn.addEventListener("click", async () => {
+  trackEvent("paste_click");
   try {
     const text = await navigator.clipboard.readText();
     if (text) { urlInput.value = text.trim(); urlInput.focus(); updatePlatformIcon(urlInput.value); }
@@ -217,13 +242,16 @@ form.addEventListener("submit", async (e) => {
 
   setLoading(true);
   showStatus("info", "⏳ Memproses link, mohon tunggu sebentar…");
+  trackEvent("download_attempt", { platform: platform });
   try {
     const data = await fetchVideo(url, platform);
     if (!data || !data.medias || data.medias.length === 0) throw new Error("EMPTY");
     hideStatus();
     renderResult(data);
+    trackEvent("download_success", { platform: data.platform, media_count: data.medias.length });
   } catch (err) {
     handleError(err, platform);
+    trackEvent("download_error", { platform: platform, error: err.message || "unknown" });
   } finally {
     setLoading(false);
   }
@@ -392,6 +420,11 @@ function renderResult(data) {
       : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>';
     return `<button class="dl-btn ${primary}" data-url="${escapeAttr(m.url)}" data-label="${escapeAttr(m.label)}">${icon}${escapeHtml(m.label)}</button>`;
   }).join("");
+  // Tombol QR code untuk transfer ke HP lain
+  const qrBtn = `<button class="dl-btn dl-btn--qr" id="qrBtn" type="button" title="Tampilkan QR code untuk scan di HP lain">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v1"/></svg>
+    QR
+  </button>`;
   resultBox.innerHTML = `
     <div class="result-card">
       <div class="result-card__media">
@@ -405,13 +438,60 @@ function renderResult(data) {
           ${data.author ? `<span>· 👤 ${escapeHtml(data.author)}</span>` : ""}
           ${durText ? `<span>· ⏱️ ${durText}</span>` : ""}
         </p>
-        <div class="result-card__downloads">${buttons}</div>
+        <div class="result-card__downloads">${buttons}${qrBtn}</div>
       </div>
     </div>`;
   resultBox.hidden = false;
-  resultBox.querySelectorAll(".dl-btn").forEach((btn) => {
+  resultBox.querySelectorAll(".dl-btn:not(.dl-btn--qr)").forEach((btn) => {
     btn.addEventListener("click", () => triggerDownload(btn.dataset.url, data, btn.dataset.label));
   });
+  const qrBtnEl = document.getElementById("qrBtn");
+  if (qrBtnEl) qrBtnEl.addEventListener("click", () => showQrCode(data));
+}
+
+/* ===================== QR CODE MODAL ============================ */
+function showQrCode(data) {
+  // Hapus modal lama kalau ada
+  const existing = document.getElementById("qrModal");
+  if (existing) existing.remove();
+
+  const sourceUrl = urlInput.value.trim() || window.location.href;
+  const qrApiUrl = `https://quickchart.io/qr?text=${encodeURIComponent(sourceUrl)}&size=240&margin=8&dark=${encodeURIComponent(data.platform === "tiktok" ? "2530314" : data.platform === "instagram" ? "dc2743" : "ff0000")}`;
+
+  const modal = document.createElement("div");
+  modal.id = "qrModal";
+  modal.className = "qr-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.innerHTML = `
+    <div class="qr-modal__content">
+      <button type="button" class="qr-modal__close" id="qrCloseBtn" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 class="qr-modal__title">Scan untuk lanjut di HP lain</h3>
+      <div class="qr-modal__img-wrap">
+        <img src="${escapeAttr(qrApiUrl)}" alt="QR code berisi link video" class="qr-modal__img" loading="lazy" />
+      </div>
+      <p class="qr-modal__video-title">${escapeHtml(data.title)}</p>
+      <p class="qr-modal__hint">Buka kamera HP → arahkan ke QR → klik link yang muncul</p>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.body.style.overflow = "hidden";
+
+  const close = () => {
+    modal.classList.add("is-leaving");
+    setTimeout(() => {
+      modal.remove();
+      document.body.style.overflow = "";
+    }, 200);
+  };
+  document.getElementById("qrCloseBtn").addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  document.addEventListener("keydown", function esc(e) {
+    if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc); }
+  });
+  trackEvent("qr_show", { platform: data.platform });
 }
 
 /* ===================== PICU DOWNLOAD FILE ======================= */
@@ -507,12 +587,16 @@ window.addEventListener("beforeinstallprompt", (e) => {
 });
 
 installBtn.addEventListener("click", async () => {
+  trackEvent("install_click", { has_prompt: !!deferredPrompt });
   if (deferredPrompt) {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === "accepted") {
       installBtn.hidden = true;
       isStandalone = true;
+      trackEvent("install_accepted");
+    } else {
+      trackEvent("install_dismissed");
     }
     deferredPrompt = null;
     installBtn.classList.remove("is-ready");
@@ -562,8 +646,40 @@ function setLoading(isLoading) {
       </div>`;
   }
 }
-function showStatus(type, message) { statusBox.className = `status status--${type}`; statusBox.textContent = message; statusBox.hidden = false; }
-function hideStatus() { statusBox.hidden = true; }
+function showStatus(type, message) {
+  // Tetap update statusBox (hidden, untuk screen reader via aria-live)
+  statusBox.className = `status status--${type}`;
+  statusBox.textContent = message;
+  statusBox.hidden = false;
+
+  // Buat toast visual
+  let container = document.getElementById("toastContainer");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.className = "toast-container";
+    container.setAttribute("aria-hidden", "true");
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast toast--${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  // Auto-dismiss: 3s untuk success, 5s untuk error/info
+  const duration = type === "success" ? 3000 : 5000;
+  setTimeout(() => {
+    toast.classList.add("is-leaving");
+    setTimeout(() => {
+      toast.remove();
+      // Auto-hide statusBox kalau toast terakhir
+      if (container.children.length === 0) {
+        statusBox.hidden = true;
+      }
+    }, 250);
+  }, duration);
+}
+function hideStatus() { statusBox.hidden = true; /* biarkan toast auto-dismiss */ }
 function clearResult() { resultBox.hidden = true; resultBox.innerHTML = ""; }
 function formatDuration(sec) { sec = Math.round(Number(sec) || 0); const m = Math.floor(sec / 60); const s = sec % 60; return `${m}:${String(s).padStart(2, "0")}`; }
 function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : str; }
@@ -591,6 +707,7 @@ function saveHistory(item) {
 function clearHistory() {
   try { localStorage.removeItem(HISTORY_KEY); } catch {}
   renderHistory();
+  trackEvent("history_clear");
 }
 
 function renderHistory() {
@@ -628,6 +745,7 @@ function renderHistory() {
       urlInput.value = btn.dataset.url;
       updatePlatformIcon(btn.dataset.url);
       urlInput.focus();
+      trackEvent("history_click");
       form.requestSubmit();
     });
   });
@@ -641,12 +759,14 @@ if (shareBtn) {
       text: "Download video IG, TikTok & YouTube tanpa watermark gratis!",
       url: window.location.href,
     };
+    trackEvent("share_click", { method: navigator.share ? "native" : "clipboard" });
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch {}
+      try { await navigator.share(shareData); trackEvent("share_success", { method: "native" }); } catch {}
     } else if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(shareData.url);
         showStatus("success", "🔗 Link ambilin disalin ke clipboard!");
+        trackEvent("share_success", { method: "clipboard" });
       } catch {
         showStatus("info", "Bagikan link ini: " + shareData.url);
       }
@@ -654,15 +774,62 @@ if (shareBtn) {
   });
 }
 
-/* ===================== SERVICE WORKER UPDATE ==================== */
+/* ===================== SERVICE WORKER UPDATE PROMPT ============== */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("message", (event) => {
     if (event.data && event.data.type === "SW_UPDATED") {
-      // SW baru terdeteksi — kasih tau user (subtle, no force refresh)
-      console.log("[ambilin] Service worker updated.");
+      showUpdateBanner();
     }
   });
 }
+
+function showUpdateBanner() {
+  if (document.getElementById("updateBanner")) return;
+  const banner = document.createElement("div");
+  banner.id = "updateBanner";
+  banner.className = "update-banner";
+  banner.innerHTML = `
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+    <span>Versi baru tersedia!</span>
+    <button type="button" class="update-banner__btn" id="updateRefreshBtn">Refresh</button>
+    <button type="button" class="update-banner__close" id="updateDismissBtn" aria-label="Tutup">×</button>
+  `;
+  document.body.appendChild(banner);
+  document.getElementById("updateRefreshBtn").addEventListener("click", () => {
+    trackEvent("pwa_update_apply");
+    window.location.reload();
+  });
+  document.getElementById("updateDismissBtn").addEventListener("click", () => {
+    banner.classList.add("is-leaving");
+    setTimeout(() => banner.remove(), 250);
+    trackEvent("pwa_update_dismiss");
+  });
+  trackEvent("pwa_update_available");
+}
+
+/* ===================== KEYBOARD SHORTCUTS ======================= */
+document.addEventListener("keydown", (e) => {
+  // Ctrl/Cmd+Enter → submit form
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    if (document.activeElement === urlInput && !downloadBtn.disabled) {
+      e.preventDefault();
+      trackEvent("keyboard_shortcut", { key: "ctrl_enter" });
+      form.requestSubmit();
+    }
+  }
+  // Ctrl/Cmd+K → focus input
+  if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K")) {
+    e.preventDefault();
+    trackEvent("keyboard_shortcut", { key: "ctrl_k" });
+    urlInput.focus();
+    urlInput.select();
+  }
+  // Escape → clear input
+  if (e.key === "Escape" && document.activeElement === urlInput) {
+    urlInput.value = "";
+    updatePlatformIcon("");
+  }
+});
 
 /* ===================== INIT HISTORY ON LOAD ==================== */
 window.addEventListener("load", renderHistory);
