@@ -5,7 +5,7 @@ const CACHE = "ambilin-v4";
 const ASSETS = [
   "/", "/index.html", "/fitur.html", "/faq.html", "/install.html",
   "/privacy.html", "/dmca.html", "/404.html",
-  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg"
+  "/style.css", "/script.js", "/manifest.json", "/icon.svg", "/og-image.svg", "/og-image-fitur.svg", "/og-image-faq.svg", "/og-image-install.svg"
 ];
 
 self.addEventListener("install", (e) => {

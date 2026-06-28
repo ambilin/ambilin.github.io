@@ -420,6 +420,12 @@ function renderResult(data) {
       : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>';
     return `<button class="dl-btn ${primary}" data-url="${escapeAttr(m.url)}" data-label="${escapeAttr(m.label)}">${icon}${escapeHtml(m.label)}</button>`;
   }).join("");
+  // Tombol preview video inline (kalau ada media video dengan URL yang bisa di-embed)
+  const firstVideo = data.medias.find(m => m.kind === "video");
+  const previewBtn = firstVideo ? `<button class="dl-btn dl-btn--preview" id="previewBtn" type="button" data-url="${escapeAttr(firstVideo.url)}" title="Preview video sebelum download">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Preview
+  </button>` : "";
   // Tombol QR code untuk transfer ke HP lain
   const qrBtn = `<button class="dl-btn dl-btn--qr" id="qrBtn" type="button" title="Tampilkan QR code untuk scan di HP lain">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v1"/></svg>
@@ -438,15 +444,46 @@ function renderResult(data) {
           ${data.author ? `<span>· 👤 ${escapeHtml(data.author)}</span>` : ""}
           ${durText ? `<span>· ⏱️ ${durText}</span>` : ""}
         </p>
-        <div class="result-card__downloads">${buttons}${qrBtn}</div>
+        <div class="result-card__downloads">${buttons}${previewBtn}${qrBtn}</div>
+        <div class="result-card__preview-wrap" id="previewWrap" aria-hidden="true">
+          <button type="button" class="result-card__preview-close" id="previewCloseBtn" aria-label="Tutup preview">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+          <video class="result-card__preview" id="previewVideo" controls preload="metadata" poster="${escapeAttr(data.thumbnail || "")}"></video>
+        </div>
       </div>
     </div>`;
   resultBox.hidden = false;
-  resultBox.querySelectorAll(".dl-btn:not(.dl-btn--qr)").forEach((btn) => {
+  resultBox.querySelectorAll(".dl-btn:not(.dl-btn--qr):not(.dl-btn--preview)").forEach((btn) => {
     btn.addEventListener("click", () => triggerDownload(btn.dataset.url, data, btn.dataset.label));
   });
   const qrBtnEl = document.getElementById("qrBtn");
   if (qrBtnEl) qrBtnEl.addEventListener("click", () => showQrCode(data));
+  // Preview video inline
+  const previewBtnEl = document.getElementById("previewBtn");
+  const previewWrap = document.getElementById("previewWrap");
+  const previewVideo = document.getElementById("previewVideo");
+  const previewCloseBtn = document.getElementById("previewCloseBtn");
+  if (previewBtnEl && previewWrap && previewVideo) {
+    previewBtnEl.addEventListener("click", () => {
+      try {
+        previewVideo.src = previewBtnEl.dataset.url;
+        previewWrap.classList.add("is-active");
+        previewWrap.setAttribute("aria-hidden", "false");
+        previewVideo.play().catch(() => {}); // autoplay might be blocked, that's OK
+        trackEvent("preview_play", { platform: data.platform });
+      } catch (err) {
+        showStatus("info", "Preview tidak bisa dimuat. Coba download langsung aja.");
+      }
+    });
+    if (previewCloseBtn) {
+      previewCloseBtn.addEventListener("click", () => {
+        previewWrap.classList.remove("is-active");
+        previewWrap.setAttribute("aria-hidden", "true");
+        try { previewVideo.pause(); previewVideo.src = ""; } catch {}
+      });
+    }
+  }
 }
 
 /* ===================== QR CODE MODAL ============================ */

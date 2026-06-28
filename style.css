@@ -440,6 +440,8 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 /* QR button di result card */
 .dl-btn--qr { color: var(--text-muted); }
 .dl-btn--qr:hover { color: var(--text); border-color: var(--grad-1); }
+.dl-btn--preview { color: var(--text-muted); }
+.dl-btn--preview:hover { color: var(--text); border-color: var(--grad-3); }
 
 /* ===================== ERROR PAGE (404) ===================== */
 .error-page {
