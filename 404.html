@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex, follow" />
+  <title>404 · Halaman Tidak Ditemukan — ambilin</title>
+  <meta name="description" content="Halaman yang kamu cari tidak ditemukan. Kembali ke beranda ambilin." />
+  <meta name="theme-color" id="metaThemeColor" content="#0b1020" />
+  <meta name="color-scheme" content="dark light" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@800&display=swap" rel="stylesheet" />
+
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb--1"></span>
+    <span class="orb orb--2"></span>
+    <span class="orb orb--3"></span>
+  </div>
+
+  <header class="nav glass">
+    <a href="index.html" class="brand" aria-label="ambilin beranda">
+      <span class="brand__name">ambil<span class="brand__accent">in</span></span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Navigasi utama">
+      <a href="index.html#cara-pakai">Cara Pakai</a>
+      <a href="fitur.html">Fitur</a>
+      <a href="faq.html">FAQ</a>
+      <a href="install.html">Download</a>
+    </nav>
+    <div class="nav__actions">
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Ganti tema terang/gelap">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top" class="error-page">
+    <div class="error-page__inner">
+      <div class="error-page__code">404</div>
+      <h1 class="error-page__title">Halaman <span class="grad-text">hilang</span></h1>
+      <p class="error-page__subtitle">
+        Sepertinya halaman yang kamu cari sudah dihapus, dipindah, atau memang nggak pernah ada.
+        Yuk balik ke beranda buat lanjut download video.
+      </p>
+      <div class="error-page__cta">
+        <a href="index.html" class="btn-primary">
+          <span class="btn-primary__label">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Kembali ke Beranda
+          </span>
+        </a>
+      </div>
+      <div class="error-page__links">
+        <a href="fitur.html">Fitur</a>
+        <span aria-hidden="true">·</span>
+        <a href="faq.html">FAQ</a>
+        <span aria-hidden="true">·</span>
+        <a href="install.html">Cara Install</a>
+        <span aria-hidden="true">·</span>
+        <a href="privacy.html">Privacy</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer__copy">© <span id="year"></span> ambilin · Dibuat untuk penggunaan pribadi. Hormati hak cipta pembuat konten.</p>
+    <p class="footer__credit">Crafted by <strong>Nugraha Nastya</strong> in Yogyakarta, Indonesia</p>
+  </footer>
+
+  <script>
+    (function() {
+      "use strict";
+      document.documentElement.classList.add("js");
+      const metaThemeColor = document.getElementById("metaThemeColor");
+      function updateThemeColor(theme) {
+        if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020");
+      }
+      function setTheme(next) {
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("ambilin-theme", next);
+        updateThemeColor(next);
+      }
+      const saved = localStorage.getItem("ambilin-theme");
+      let theme;
+      if (saved) theme = saved;
+      else theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeColor(theme);
+      const themeToggle = document.getElementById("themeToggle");
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      themeToggle.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme");
+        const next = current === "light" ? "dark" : "light";
+        if (prefersReducedMotion || !document.startViewTransition) { setTheme(next); return; }
+        const rect = themeToggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+        const transition = document.startViewTransition(() => setTheme(next));
+        transition.ready.then(() => {
+          document.documentElement.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+            { duration: 450, easing: "cubic-bezier(0.4, 0, 0.2, 1)", pseudoElement: "::view-transition-new(root)" }
+          );
+        }).catch(() => setTheme(next));
+      });
+      document.getElementById("year").textContent = new Date().getFullYear();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Privacy Policy — ambilin</title>
+  <meta name="description" content="Kebijakan privasi ambilin: data yang dikumpulkan, cookie, analytics, dan hak kamu sebagai pengguna." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://ambilin.github.io/privacy.html" />
+  <meta name="theme-color" id="metaThemeColor" content="#0b1020" />
+  <meta name="color-scheme" content="dark light" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Privacy Policy — ambilin" />
+  <meta property="og:description" content="Kebijakan privasi ambilin: data yang dikumpulkan, cookie, analytics." />
+  <meta property="og:url" content="https://ambilin.github.io/privacy.html" />
+  <meta property="og:image" content="https://ambilin.github.io/og-image.svg" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Beranda", "item": "https://ambilin.github.io/" },
+      { "@type": "ListItem", "position": 2, "name": "Privacy Policy", "item": "https://ambilin.github.io/privacy.html" }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb orb--1"></span>
+    <span class="orb orb--2"></span>
+    <span class="orb orb--3"></span>
+  </div>
+
+  <header class="nav glass">
+    <a href="index.html" class="brand" aria-label="ambilin beranda">
+      <span class="brand__name">ambil<span class="brand__accent">in</span></span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Navigasi utama">
+      <a href="index.html#cara-pakai">Cara Pakai</a>
+      <a href="fitur.html">Fitur</a>
+      <a href="faq.html">FAQ</a>
+      <a href="install.html">Download</a>
+    </nav>
+    <div class="nav__actions">
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Ganti tema terang/gelap">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="top" class="legal-page">
+    <h1 class="legal-page__title">Kebijakan Privasi</h1>
+    <p class="legal-page__updated">Terakhir diperbarui: Juni 2025</p>
+
+    <section class="legal-page__section">
+      <h2>1. Ringkasan</h2>
+      <p>ambilin adalah web downloader video gratis yang berjalan langsung di browser kamu. Kami berkomitmen untuk melindungi privasi kamu. Kebijakan ini menjelaskan data apa yang kami kumpulkan, bagaimana kami menggunakannya, dan hak kamu.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>2. Data yang Kami Kumpulkan</h2>
+      <p><strong>Kami TIDAK menyimpan video yang kamu unduh.</strong> Semua proses download berjalan langsung di browser kamu. Link video yang kamu tempel tidak dikirim ke server kami kecuali untuk:</p>
+      <ul>
+        <li><strong>TikTok:</strong> dikirim ke <code>tikwm.com</code> (API publik) untuk mengambil metadata video</li>
+        <li><strong>YouTube:</strong> dikirim ke Cloudflare Worker kami (<code>ambilin-worker.nugraha-naw.workers.dev</code>) untuk scraping</li>
+        <li><strong>Instagram:</strong> dikirim ke Cloudflare Worker yang sama untuk scraping embed page</li>
+      </ul>
+      <p>Server kami tidak menyimpan log permanen dari URL yang diproses.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>3. Penyimpanan Lokal (LocalStorage)</h2>
+      <p>Kami menggunakan <code>localStorage</code> browser kamu untuk menyimpan:</p>
+      <ul>
+        <li><strong>Preferensi tema</strong> (dark/light mode) — agar tetap konsisten saat refresh</li>
+        <li><strong>Riwayat 5 download terakhir</strong> — untuk memudahkan re-download. Data ini HANYA ada di browser kamu, nggak dikirim ke server mana pun</li>
+      </ul>
+      <p>Kamu bisa menghapus riwayat kapan saja lewat tombol "Hapus" di section Riwayat, atau dengan clear browser data.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>4. Cookie</h2>
+      <p>ambilin <strong>tidak menggunakan cookie</strong> untuk tracking. Kami hanya menggunakan localStorage seperti dijelaskan di atas.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>5. Google Analytics</h2>
+      <p>Kami menggunakan Google Analytics 4 (GA4) untuk memahami bagaimana pengunjung menggunakan web ini, agar kami bisa meningkatkan pengalaman pengguna. Data yang dikumpulkan:</p>
+      <ul>
+        <li>Halaman yang dikunjungi (anonim)</li>
+        <li>Event interaction: klik download, install, share, theme toggle, dll</li>
+        <li>Performa web (Web Vitals: LCP, FID, CLS)</li>
+        <li>Negara asal (agregat, bukan IP individual)</li>
+      </ul>
+      <p>Kami mengaktifkan <code>anonymize_ip</code> sehingga IP kamu tidak disimpan oleh Google. Kamu bisa opt-out pakai add-on <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener" target="_blank">Google Analytics Opt-out</a>.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>6. Layanan Pihak Ketiga</h2>
+      <p>Saat download, web kami mengakses API pihak ketiga:</p>
+      <ul>
+        <li><strong>tikwm.com</strong> — API publik TikTok downloader</li>
+        <li><strong>api.piped.private.coffee</strong> — API publik YouTube (open source)</li>
+        <li><strong>Cloudflare Workers</strong> — serverless function untuk YouTube & Instagram scraping</li>
+        <li><strong>quickchart.io</strong> — generate QR code untuk fitur transfer HP</li>
+        <li><strong>Google Fonts</strong> — font Inter & Poppins</li>
+      </ul>
+      <p>Masing-masing layanan ini punya kebijakan privasi sendiri. Kami nggak bertanggung jawab atas data yang dikirim ke mereka.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>7. Hak Kamu</h2>
+      <p>Sebagai pengguna, kamu punya hak untuk:</p>
+      <ul>
+        <li>Mengakses data yang tersimpan di browser kamu (lewat DevTools → Application → LocalStorage)</li>
+        <li>Menghapus data lokal kapan saja (tombol "Hapus" di Riwayat, atau clear browser data)</li>
+        <li>Opt-out dari analytics (pakai add-on Google Analytics Opt-out)</li>
+        <li>Memakai web ini tanpa JavaScript (dengan fungsi terbatas)</li>
+      </ul>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>8. Keamanan</h2>
+      <p>Web ini di-hosting di GitHub Pages (HTTPS) dan Cloudflare Workers (HTTPS). Semua komunikasi dienkripsi. Namun, ingat bahwa download video dari API pihak ketiga bisa saja diekspos di log server mereka — kami nggak kontrol itu.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>9. Anak di Bawah Umur</h2>
+      <p>ambilin tidak ditujukan untuk anak di bawah 13 tahun. Kami nggak sengaja mengumpulkan data dari anak-anak. Kalau kamu orang tua dan menemukan anak kamu menggunakan web ini tanpa supervisi, mohon bantu clear browser data mereka.</p>
+    </section>
+
+    <section class="legal-page__section">
+      <h2>10. Perubahan Kebijakan</h2>
+      <p>Kebijakan ini bisa berubah sewaktu-waktu. Versi terbaru selalu ada di halaman ini dengan tanggal update di atas. Lanjut menggunakan web ini setelah perubahan = kamu setuju dengan kebijakan baru.</p>
+    </section>
+
+    <div class="legal-page__contact">
+      <strong>Punya pertanyaan soal privasi?</strong><br />
+      Buka issue di <a href="https://github.com/ambilin/ambilin.github.io/issues" target="_blank" rel="noopener">GitHub repository</a> kami, atau lihat juga <a href="dmca.html">halaman DMCA</a> untuk masalah hak cipta.
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <div>
+          <p class="brand__name">ambil<span class="brand__accent">in</span></p>
+          <p class="footer__tagline">Downloader video tanpa watermark.</p>
+        </div>
+      </div>
+      <nav class="footer__links" aria-label="Tautan footer">
+        <a href="index.html#cara-pakai">Cara Pakai</a>
+        <a href="fitur.html">Fitur</a>
+        <a href="faq.html">FAQ</a>
+        <a href="install.html">Download</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="dmca.html">DMCA</a>
+      </nav>
+    </div>
+    <p class="footer__copy">© <span id="year"></span> ambilin · Dibuat untuk penggunaan pribadi. Hormati hak cipta pembuat konten.</p>
+    <p class="footer__credit">Crafted by <strong>Nugraha Nastya</strong> in Yogyakarta, Indonesia</p>
+  </footer>
+
+  <script>
+    (function() {
+      "use strict";
+      document.documentElement.classList.add("js");
+      const metaThemeColor = document.getElementById("metaThemeColor");
+      function updateThemeColor(theme) { if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "light" ? "#f4f6ff" : "#0b1020"); }
+      function setTheme(next) { document.documentElement.setAttribute("data-theme", next); localStorage.setItem("ambilin-theme", next); updateThemeColor(next); }
+      const saved = localStorage.getItem("ambilin-theme");
+      let theme;
+      if (saved) theme = saved;
+      else theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", theme);
+      updateThemeColor(theme);
+      const themeToggle = document.getElementById("themeToggle");
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      themeToggle.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme");
+        const next = current === "light" ? "dark" : "light";
+        if (prefersReducedMotion || !document.startViewTransition) { setTheme(next); return; }
+        const rect = themeToggle.getBoundingClientRect();
+        const x = rect.left + rect.width / 2, y = rect.top + rect.height / 2;
+        const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+        const transition = document.startViewTransition(() => setTheme(next));
+        transition.ready.then(() => {
+          document.documentElement.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+            { duration: 450, easing: "cubic-bezier(0.4, 0, 0.2, 1)", pseudoElement: "::view-transition-new(root)" }
+          );
+        }).catch(() => setTheme(next));
+      });
+      document.getElementById("year").textContent = new Date().getFullYear();
+    })();
+  </script>
+</body>
+</html>

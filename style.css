@@ -438,6 +438,147 @@ html.js .reveal.is-visible { opacity: 1; transform: translateY(0); }
 .dl-btn--qr { color: var(--text-muted); }
 .dl-btn--qr:hover { color: var(--text); border-color: var(--grad-1); }
 
+/* ===================== ERROR PAGE (404) ===================== */
+.error-page {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+.error-page__inner { max-width: 560px; }
+.error-page__code {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(5rem, 18vw, 9rem);
+  font-weight: 800;
+  line-height: 1;
+  background: var(--hero-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  letter-spacing: -2px;
+}
+.error-page__title {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+}
+.error-page__subtitle {
+  color: var(--text-muted);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.error-page__cta { margin-bottom: 1.8rem; }
+.error-page__cta .btn-primary { display: inline-flex; }
+.error-page__links {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem 0.8rem;
+  font-size: 0.85rem; color: var(--text-muted);
+}
+.error-page__links a { color: var(--text-muted); transition: color 0.2s ease; }
+.error-page__links a:hover { color: var(--text); }
+
+/* ===================== LEGAL PAGES (privacy, dmca) ===================== */
+.legal-page { max-width: 760px; margin: 0 auto; padding: clamp(2rem, 5vw, 4rem) 1.5rem 4rem; }
+.legal-page__title {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.5px;
+}
+.legal-page__updated {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 2.4rem;
+}
+.legal-page__section { margin-bottom: 2rem; }
+.legal-page__section h2 {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: var(--text);
+}
+.legal-page__section p, .legal-page__section li {
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+.legal-page__section ul, .legal-page__section ol {
+  padding-left: 1.4rem;
+  margin-bottom: 0.8rem;
+}
+.legal-page__section strong { color: var(--text); font-weight: 600; }
+.legal-page__contact {
+  margin-top: 2.5rem;
+  padding: 1.2rem 1.4rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.legal-page__contact strong { color: var(--text); }
+.legal-page__contact a { color: var(--grad-1); font-weight: 600; }
+[data-theme="dark"] .legal-page__contact a { color: #b9a6ff; }
+
+/* ===================== OFFLINE INDICATOR ===================== */
+.offline-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1500;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #ff5c93, #ff7e30);
+  color: #fff;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: fadeDown 0.3s ease;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+@keyframes fadeDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+.offline-banner.is-leaving { animation: fadeUp-out 0.3s ease forwards; }
+@keyframes fadeUp-out { to { transform: translateY(-100%); opacity: 0; } }
+.offline-banner svg { flex-shrink: 0; }
+
+/* ===================== VIDEO PREVIEW INLINE ===================== */
+.result-card__preview-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  margin: 0.5rem auto 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  display: none;
+}
+.result-card__preview-wrap.is-active { display: block; }
+.result-card__preview {
+  width: 100%;
+  display: block;
+  max-height: 280px;
+  object-fit: contain;
+}
+.result-card__preview-close {
+  position: absolute;
+  top: 0.4rem; right: 0.4rem;
+  width: 28px; height: 28px;
+  display: grid; place-items: center;
+  background: rgba(0,0,0,0.7);
+  border: none; border-radius: 6px;
+  color: #fff; cursor: pointer;
+  font-family: inherit;
+}
+
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 860px) {
   .steps, .features { grid-template-columns: repeat(2, 1fr); }
